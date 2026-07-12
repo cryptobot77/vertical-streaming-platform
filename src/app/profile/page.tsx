@@ -189,9 +189,9 @@ export default function ProfilePage() {
           {/* Card body */}
           <div className="p-6">
             {editing ? (
-              <form onSubmit={handleUpdateProfile} className="space-y-4">
+              <form onSubmit={handleUpdateProfile} className="space-y-5">
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1.5">Display Name</label>
+                  <label className="block text-xs font-medium text-gray-400 mb-2">Display Name</label>
                   <input
                     type="text"
                     value={formData.display_name}
@@ -201,7 +201,7 @@ export default function ProfilePage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1.5">Username</label>
+                  <label className="block text-xs font-medium text-gray-400 mb-2">Username</label>
                   <input
                     type="text"
                     value={formData.username}
@@ -211,7 +211,7 @@ export default function ProfilePage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                  <label className="block text-xs font-medium text-gray-400 mb-2">
                     Avatar URL
                     <span className="text-gray-600 ml-1 font-normal">(paste an image URL)</span>
                   </label>
@@ -251,17 +251,17 @@ export default function ProfilePage() {
             ) : (
               <div className="grid sm:grid-cols-3 gap-4">
                 <div className="bg-white/3 rounded-xl p-4 border border-white/6">
-                  <p className="text-gray-500 text-xs mb-1">Email</p>
+                   <p className="text-gray-500 text-xs mb-2">Email</p>
                   <p className="text-white text-sm font-medium truncate">{profile?.email || '—'}</p>
                 </div>
                 <div className="bg-white/3 rounded-xl p-4 border border-white/6">
-                  <p className="text-gray-500 text-xs mb-1">Member since</p>
+                   <p className="text-gray-500 text-xs mb-2">Member since</p>
                   <p className="text-white text-sm font-medium">
                     {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : '—'}
                   </p>
                 </div>
                 <div className="bg-white/3 rounded-xl p-4 border border-white/6">
-                  <p className="text-gray-500 text-xs mb-1">Role</p>
+                   <p className="text-gray-500 text-xs mb-2">Role</p>
                   <p className="text-white text-sm font-medium capitalize">{profile?.role || 'viewer'}</p>
                 </div>
               </div>
@@ -287,7 +287,7 @@ export default function ProfilePage() {
             <div className="flex items-center justify-between p-4 bg-white/3 rounded-xl border border-white/6">
               <div>
                 <p className="text-gray-300 text-sm font-medium">No active subscription</p>
-                <p className="text-gray-500 text-xs mt-0.5">Upgrade to unlock premium content</p>
+                 <p className="text-gray-500 text-xs mt-1">Upgrade to unlock premium content</p>
               </div>
               <Link
                 href="/subscribe"

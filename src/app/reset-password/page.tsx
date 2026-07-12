@@ -78,8 +78,8 @@ export default function ResetPasswordPage() {
         </div>
 
         <div className="glass-dark rounded-2xl p-8 border border-white/10">
-          <h1 className="text-2xl font-bold text-white mb-1 tracking-tight">Set new password</h1>
-          <p className="text-gray-500 mb-7 text-sm">Choose a strong password for your account</p>
+          <h1 className="text-2xl font-bold text-white mb-2 tracking-tight">Set new password</h1>
+          <p className="text-gray-500 mb-8 text-sm">Choose a strong password for your account</p>
 
           {error && (
             <div className="flex items-start gap-3 bg-red-500/8 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl mb-5 text-sm">
@@ -106,9 +106,9 @@ export default function ResetPasswordPage() {
               <p className="text-gray-400 text-sm">Verifying reset link...</p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1.5" htmlFor="password">
+                <label className="block text-xs font-medium text-gray-400 mb-2" htmlFor="password">
                   New password
                 </label>
                 <div className="relative">
@@ -144,7 +144,7 @@ export default function ResetPasswordPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1.5" htmlFor="confirm-password">
+                <label className="block text-xs font-medium text-gray-400 mb-2" htmlFor="confirm-password">
                   Confirm password
                 </label>
                 <input
@@ -166,7 +166,7 @@ export default function ResetPasswordPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary w-full py-3.5 text-sm mt-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="btn-primary w-full py-3.5 text-sm mt-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {loading ? (
                   <>

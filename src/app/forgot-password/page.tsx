@@ -48,8 +48,8 @@ export default function ForgotPasswordPage() {
         </div>
 
         <div className="glass-dark rounded-2xl p-8 border border-white/10">
-          <h1 className="text-2xl font-bold text-white mb-1 tracking-tight">Reset your password</h1>
-          <p className="text-gray-500 mb-7 text-sm">Enter your email and we&apos;ll send you a reset link</p>
+          <h1 className="text-2xl font-bold text-white mb-2 tracking-tight">Reset your password</h1>
+          <p className="text-gray-500 mb-8 text-sm">Enter your email and we&apos;ll send you a reset link</p>
 
           {error && (
             <div className="flex items-start gap-3 bg-red-500/8 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl mb-5 text-sm">
@@ -79,9 +79,9 @@ export default function ForgotPasswordPage() {
               </Link>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-xs font-medium text-gray-400 mb-1.5" htmlFor="email">
+                <label className="block text-xs font-medium text-gray-400 mb-2" htmlFor="email">
                   Email address
                 </label>
                 <input
@@ -100,7 +100,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary w-full py-3.5 text-sm mt-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="btn-primary w-full py-3.5 text-sm mt-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {loading ? (
                   <>
@@ -114,7 +114,7 @@ export default function ForgotPasswordPage() {
             </form>
           )}
 
-          <p className="mt-6 text-center text-gray-500 text-sm">
+          <p className="mt-8 text-center text-gray-500 text-sm">
             Remember your password?{' '}
             <Link href="/login" className="text-purple-400 hover:text-purple-300 font-medium transition-colors">
               Sign in

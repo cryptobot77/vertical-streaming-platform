@@ -165,7 +165,7 @@ export default function CommentSheet({ episodeId, isOpen, onClose }: CommentShee
                 )}
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
+                  <div className="flex items-center gap-2 mb-1">
                     <span className="text-white text-sm font-medium">
                       {comment.user?.display_name || comment.user?.username}
                     </span>

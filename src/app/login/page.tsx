@@ -61,8 +61,8 @@ export default function LoginPage() {
 
         {/* Card */}
         <div className="glass-dark rounded-2xl p-8 border border-white/10">
-          <h1 className="text-2xl font-bold text-white mb-1 tracking-tight">Welcome back</h1>
-          <p className="text-gray-500 mb-7 text-sm">Sign in to continue watching</p>
+          <h1 className="text-2xl font-bold text-white mb-2 tracking-tight">Welcome back</h1>
+          <p className="text-gray-500 mb-8 text-sm">Sign in to continue watching</p>
 
           {/* Error */}
           {error && (
@@ -75,10 +75,10 @@ export default function LoginPage() {
           )}
 
           {/* Form */}
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-5">
             {/* Email */}
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5" htmlFor="email">
+              <label className="block text-xs font-medium text-gray-400 mb-2" htmlFor="email">
                 Email
               </label>
               <input
@@ -95,7 +95,7 @@ export default function LoginPage() {
 
             {/* Password */}
             <div>
-              <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center justify-between mb-2">
                 <label className="block text-xs font-medium text-gray-400" htmlFor="password">
                   Password
                 </label>
@@ -140,7 +140,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full py-3.5 text-sm mt-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="btn-primary w-full py-3.5 text-sm mt-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               {loading ? (
                 <>
@@ -154,7 +154,7 @@ export default function LoginPage() {
           </form>
 
           {/* Divider */}
-          <div className="relative my-6">
+          <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-white/10" />
             </div>
@@ -188,7 +188,7 @@ export default function LoginPage() {
             </button>
           </div>
 
-          <p className="mt-6 text-center text-gray-500 text-sm">
+          <p className="mt-8 text-center text-gray-500 text-sm">
             Don't have an account?{' '}
             <Link href="/signup" className="text-purple-400 hover:text-purple-300 font-medium transition-colors">
               Sign up free

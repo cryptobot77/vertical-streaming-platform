@@ -281,7 +281,7 @@ export default function FeedPage() {
                     </div>
 
                     {/* Episode title & description */}
-                    <h3 className="text-white text-base font-semibold mb-1 leading-tight">
+                     <h3 className="text-white text-base font-semibold mb-2 leading-tight">
                       {episode.title}
                     </h3>
                     {episode.description && (
@@ -292,7 +292,7 @@ export default function FeedPage() {
 
                     {/* Action row */}
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-5">
+                      <div className="flex items-center gap-6">
                         {/* Like */}
                         <button
                           onClick={(e) => handleLike(episode.id, e)}

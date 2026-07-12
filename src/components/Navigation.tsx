@@ -70,7 +70,7 @@ export default function Navigation() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden md:flex items-center gap-1.5">
             <Link href="/feed" className={navLinkClass('/feed')}>
               <span className="px-3 py-1.5">Feed</span>
               {isActive('/feed') && (
@@ -85,7 +85,7 @@ export default function Navigation() {
             </Link>
 
             {!loading && (
-              <div className="flex items-center gap-1 ml-2">
+              <div className="flex items-center gap-1.5 ml-2">
                 {user ? (
                   <>
                     <Link href="/dashboard/creator" className={navLinkClass('/dashboard')}>
@@ -154,7 +154,7 @@ export default function Navigation() {
           mobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
-        <div className="px-4 py-3 space-y-1 bg-black/95 backdrop-blur-xl">
+        <div className="px-4 py-3 space-y-1.5 bg-black/95 backdrop-blur-xl">
           <Link href="/feed" className={mobileLinkClass('/feed')}>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />

@@ -238,7 +238,7 @@ export default function DiscoverPage() {
 
                   {/* Info */}
                   <div className="p-4">
-                    <h3 className="text-sm font-semibold text-white group-hover:text-purple-300 transition-colors duration-200 line-clamp-1 mb-1">
+                    <h3 className="text-sm font-semibold text-white group-hover:text-purple-300 transition-colors duration-200 line-clamp-1 mb-2">
                       {s.title}
                     </h3>
                     {s.description && (

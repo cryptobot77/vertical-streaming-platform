@@ -148,7 +148,7 @@ export default function SeriesPage() {
             />
           )}
           <div className="flex-1">
-            <div className="flex items-center space-x-2 mb-2">
+            <div className="flex items-center space-x-2 mb-3">
               <h1 className="text-2xl font-bold text-white">{series.title}</h1>
               {series.is_flagship && (
                 <span className="px-2 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold rounded-full">
@@ -198,7 +198,7 @@ export default function SeriesPage() {
                   </div>
                 </div>
                 <div className="flex-1 text-left">
-                  <h3 className="text-white font-medium mb-1">{episode.title}</h3>
+                  <h3 className="text-white font-medium mb-2">{episode.title}</h3>
                   <div className="flex items-center space-x-3">
                     {episode.duration_seconds > 0 && (
                       <span className="text-gray-400 text-sm">

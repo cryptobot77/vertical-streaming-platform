@@ -221,7 +221,7 @@ export default function SubscribePage() {
                 )}
 
                 <div className="mb-5">
-                  <h3 className="text-lg font-bold text-white mb-1">{plan.name}</h3>
+                  <h3 className="text-lg font-bold text-white mb-2">{plan.name}</h3>
                   {plan.yearlyEquivalent && (
                     <p className="text-purple-300 text-xs mb-3">{plan.yearlyEquivalent} billed annually</p>
                   )}
@@ -231,7 +231,7 @@ export default function SubscribePage() {
                   </div>
                 </div>
 
-                <ul className="space-y-2.5 mb-6">
+                <ul className="space-y-3 mb-6">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-center gap-2.5 text-gray-300 text-sm">
                       <span className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 ${
@@ -287,7 +287,7 @@ export default function SubscribePage() {
         {/* FAQ */}
         <div className="max-w-2xl mx-auto animate-fadeIn stagger-4">
           <h2 className="text-2xl font-bold text-white text-center mb-8 tracking-tight">Frequently asked questions</h2>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {faqs.map((faq, i) => (
               <div
                 key={i}

@@ -83,8 +83,8 @@ export default function SignupPage() {
 
         {/* Card */}
         <div className="glass-dark rounded-2xl p-8 border border-white/10">
-          <h1 className="text-2xl font-bold text-white mb-1 tracking-tight">Create your account</h1>
-          <p className="text-gray-500 mb-7 text-sm">Start your premium viewing experience</p>
+          <h1 className="text-2xl font-bold text-white mb-2 tracking-tight">Create your account</h1>
+          <p className="text-gray-500 mb-8 text-sm">Start your premium viewing experience</p>
 
           {/* Error */}
           {error && (
@@ -97,10 +97,10 @@ export default function SignupPage() {
           )}
 
           {/* Form */}
-          <form onSubmit={handleSignup} className="space-y-4">
+          <form onSubmit={handleSignup} className="space-y-5">
             {/* Username */}
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5" htmlFor="username">
+              <label className="block text-xs font-medium text-gray-400 mb-2" htmlFor="username">
                 Username
               </label>
               <input
@@ -118,7 +118,7 @@ export default function SignupPage() {
 
             {/* Email */}
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5" htmlFor="email">
+              <label className="block text-xs font-medium text-gray-400 mb-2" htmlFor="email">
                 Email
               </label>
               <input
@@ -135,7 +135,7 @@ export default function SignupPage() {
 
             {/* Password */}
             <div>
-              <label className="block text-xs font-medium text-gray-400 mb-1.5" htmlFor="password">
+              <label className="block text-xs font-medium text-gray-400 mb-2" htmlFor="password">
                 Password
               </label>
               <div className="relative">
@@ -192,7 +192,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full py-3.5 text-sm mt-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="btn-primary w-full py-3.5 text-sm mt-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               {loading ? (
                 <>
@@ -206,7 +206,7 @@ export default function SignupPage() {
           </form>
 
           {/* Divider */}
-          <div className="relative my-6">
+          <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-white/10" />
             </div>
@@ -240,7 +240,7 @@ export default function SignupPage() {
             </button>
           </div>
 
-          <p className="mt-6 text-center text-gray-500 text-sm">
+          <p className="mt-8 text-center text-gray-500 text-sm">
             Already have an account?{' '}
             <Link href="/login" className="text-purple-400 hover:text-purple-300 font-medium transition-colors">
               Sign in

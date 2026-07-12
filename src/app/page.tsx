@@ -188,7 +188,7 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-white mb-2">Mobile-First</h3>
+               <h3 className="text-xl font-semibold text-white mb-3">Mobile-First</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
                 Engineered for vertical screens with smooth snap scrolling and auto-play. The TikTok-style experience for premium content creators.
               </p>
@@ -201,7 +201,7 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-white mb-2">Premium Content</h3>
+               <h3 className="text-xl font-semibold text-white mb-3">Premium Content</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
                 Exclusive series from verified creators, protected by enterprise-grade DRM. Pay once, stream everywhere.
               </p>
@@ -214,7 +214,7 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold text-white mb-2">Lightning Fast</h3>
+               <h3 className="text-xl font-semibold text-white mb-3">Lightning Fast</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
                 Powered by Mux and a global CDN. Adaptive bitrate streaming ensures zero buffering regardless of connection speed.
               </p>
@@ -284,11 +284,11 @@ export default function Home() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="glass rounded-2xl p-5">
-                  <p className="text-gray-400 text-xs mb-1">Total Views</p>
+                  <p className="text-gray-400 text-xs mb-2">Total Views</p>
                   <p className="text-2xl font-bold text-white">48.2K</p>
                 </div>
                 <div className="glass rounded-2xl p-5">
-                  <p className="text-gray-400 text-xs mb-1">Subscribers</p>
+                  <p className="text-gray-400 text-xs mb-2">Subscribers</p>
                   <p className="text-2xl font-bold text-white">2,140</p>
                 </div>
               </div>
@@ -344,7 +344,7 @@ export default function Home() {
               </div>
               <span className="text-white font-bold text-lg tracking-tight">StreamVault</span>
             </Link>
-            <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-gray-500">
+            <nav className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm text-gray-500">
               <Link href="/feed" className="hover:text-gray-300 transition-colors">Feed</Link>
               <Link href="/discover" className="hover:text-gray-300 transition-colors">Discover</Link>
               <Link href="/subscribe" className="hover:text-gray-300 transition-colors">Pricing</Link>

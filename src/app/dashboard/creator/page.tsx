@@ -104,7 +104,7 @@ export default function CreatorDashboard() {
         {/* Header */}
         <div className="flex items-start justify-between mb-8 animate-fadeIn">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-1 tracking-tight">Creator Studio</h1>
+            <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Creator Studio</h1>
             <p className="text-gray-500 text-sm">Manage your series and episodes</p>
           </div>
           <button
@@ -222,7 +222,7 @@ export default function CreatorDashboard() {
 
                 {/* Card body */}
                 <div className="p-4">
-                  <h3 className="text-sm font-semibold text-white mb-1 group-hover:text-purple-300 transition-colors line-clamp-1">
+                  <h3 className="text-sm font-semibold text-white mb-2 group-hover:text-purple-300 transition-colors line-clamp-1">
                     {s.title}
                   </h3>
                   {s.description && (
@@ -231,7 +231,7 @@ export default function CreatorDashboard() {
 
                   {/* Episode list */}
                   {s.episodes.length > 0 && (
-                    <div className="mb-3 space-y-1.5 max-h-32 overflow-y-auto">
+                    <div className="mb-3 space-y-2 max-h-32 overflow-y-auto">
                       {s.episodes
                         .sort((a, b) => a.episode_number - b.episode_number)
                         .map((ep) => (
