@@ -15,7 +15,7 @@ export async function createMuxUpload(options: MuxUploadOptions) {
     const upload = await mux.video.uploads.create({
       new_asset_settings: {
         playback_policy: ['public'],
-        video_quality: 'high',
+        video_quality: 'premium',
       },
       cors_origin: '*',
     })

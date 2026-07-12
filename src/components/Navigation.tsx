@@ -3,13 +3,14 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 export default function Navigation() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
   const supabase = createClient()
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export default function Navigation() {
   const handleLogout = async () => {
     await supabase.auth.signOut()
     setUser(null)
-    window.location.href = '/'
+    router.push('/')
   }
 
   const isActive = (href: string) =>
@@ -131,6 +132,8 @@ export default function Navigation() {
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden w-9 h-9 flex items-center justify-center text-gray-300 hover:text-white rounded-lg hover:bg-white/10 transition-all duration-200"
             aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-menu"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {mobileMenuOpen ? (
@@ -145,6 +148,8 @@ export default function Navigation() {
 
       {/* Mobile menu — smooth slide-down animation */}
       <div
+        id="mobile-menu"
+        role="menu"
         className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out border-t border-white/10 ${
           mobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
         }`}

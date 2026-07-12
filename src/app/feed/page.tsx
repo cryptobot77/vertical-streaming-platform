@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
 import VideoPlayer from '@/components/VideoPlayer'
 import { useUserStore } from '@/lib/store'
 
@@ -30,6 +31,7 @@ export default function FeedPage() {
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set())
   const [showScrollHint, setShowScrollHint] = useState(true)
   const { isPremium } = useUserStore()
+  const router = useRouter()
   const supabase = createClient()
 
   useEffect(() => {
@@ -79,7 +81,7 @@ export default function FeedPage() {
   }
 
   const handleUnlockPremium = () => {
-    window.location.href = '/subscribe'
+    router.push('/subscribe')
   }
 
   const handleLike = (id: string, e: React.MouseEvent) => {
@@ -243,7 +245,7 @@ export default function FeedPage() {
                     </div>
 
                     <button
-                      onClick={(e) => { e.stopPropagation(); window.location.href = `/feed/series/${episode.series.id}` }}
+                      onClick={(e) => { e.stopPropagation(); router.push(`/feed/series/${episode.series.id}`) }}
                       className="px-4 py-2 bg-white/10 backdrop-blur-sm text-white rounded-full text-xs font-semibold hover:bg-white/20 transition-colors border border-white/15"
                     >
                       View Series

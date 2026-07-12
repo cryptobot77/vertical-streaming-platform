@@ -17,6 +17,7 @@ export default function ProfilePage() {
     display_name: '',
     avatar_url: '',
   })
+  const [avatarError, setAvatarError] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -139,14 +140,12 @@ export default function ProfilePage() {
               <div className="flex items-center gap-4">
                 {/* Avatar */}
                 <div className="relative flex-shrink-0">
-                  {(editing ? formData.avatar_url : profile?.avatar_url) ? (
+                  {(editing ? formData.avatar_url : profile?.avatar_url) && !avatarError ? (
                     <img
                       src={editing ? formData.avatar_url : profile?.avatar_url}
                       alt={profile?.display_name || profile?.username}
                       className="w-20 h-20 rounded-2xl object-cover border-2 border-white/10"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none'
-                      }}
+                      onError={() => setAvatarError(true)}
                     />
                   ) : (
                     <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center border-2 border-purple-500/30">

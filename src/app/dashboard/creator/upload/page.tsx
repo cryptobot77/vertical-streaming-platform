@@ -1,10 +1,22 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export default function UploadPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="w-10 h-10 border-2 border-white/10 border-t-purple-500 rounded-full animate-spin" />
+      </div>
+    }>
+      <UploadContent />
+    </Suspense>
+  )
+}
+
+function UploadContent() {
   const searchParams = useSearchParams()
   const seriesId = searchParams.get('seriesId')
   const router = useRouter()

@@ -32,6 +32,7 @@ export default function VideoPlayer({
   const [duration, setDuration] = useState(0)
   const [showControls, setShowControls] = useState(false)
   const [showTapFeedback, setShowTapFeedback] = useState(false)
+  const [tapFeedbackAction, setTapFeedbackAction] = useState<'play' | 'pause'>('pause')
   const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Auto-play when in view
@@ -98,7 +99,8 @@ export default function VideoPlayer({
 
   const handlePlayPause = () => {
     if (videoRef.current) {
-      if (videoRef.current.paused) {
+      const willPlay = videoRef.current.paused
+      if (willPlay) {
         videoRef.current.play()
         setLocalIsPlaying(true)
         setIsPlaying(true)
@@ -107,7 +109,7 @@ export default function VideoPlayer({
         setLocalIsPlaying(false)
         setIsPlaying(false)
       }
-      // Show tap animation feedback
+      setTapFeedbackAction(willPlay ? 'play' : 'pause')
       setShowTapFeedback(true)
       setTimeout(() => setShowTapFeedback(false), 600)
     }
@@ -132,7 +134,7 @@ export default function VideoPlayer({
   return (
     <div
       ref={ref}
-      className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden"
+      className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden group"
       onClick={handlePlayPause}
       onMouseMove={showControlsTemporarily}
     >
@@ -168,6 +170,7 @@ export default function VideoPlayer({
             loop
             playsInline
             muted={isMuted}
+            preload="metadata"
             onTimeUpdate={handleTimeUpdate}
             onLoadedMetadata={handleLoadedMetadata}
             onWaiting={handleWaiting}
@@ -185,7 +188,7 @@ export default function VideoPlayer({
           {showTapFeedback && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center animate-fadeInScale">
-                {isPlaying ? (
+                {tapFeedbackAction === 'pause' ? (
                   <svg className="w-9 h-9 text-white" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                   </svg>

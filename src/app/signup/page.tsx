@@ -211,7 +211,7 @@ export default function SignupPage() {
               <div className="w-full border-t border-white/10" />
             </div>
             <div className="relative flex justify-center">
-              <span className="px-3 bg-[#080808] text-gray-500 text-xs">Or continue with</span>
+              <span className="px-3 bg-black/60 text-gray-500 text-xs">Or continue with</span>
             </div>
           </div>
 

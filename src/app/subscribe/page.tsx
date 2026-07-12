@@ -3,9 +3,6 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { loadStripe } from '@stripe/stripe-js'
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 const faqs = [
   {
@@ -32,6 +29,7 @@ export default function SubscribePage() {
   const [isPremium, setIsPremium] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('yearly')
   const [processing, setProcessing] = useState(false)
+  const [checkoutError, setCheckoutError] = useState<string | null>(null)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
   const router = useRouter()
   const supabase = createClient()
@@ -60,6 +58,7 @@ export default function SubscribePage() {
 
   const handleSubscribe = async (priceId: string) => {
     setProcessing(true)
+    setCheckoutError(null)
     try {
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
@@ -69,8 +68,9 @@ export default function SubscribePage() {
       const { url } = await response.json()
       if (url) window.location.href = url
       else throw new Error('Failed to create checkout session')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Subscription error:', error)
+      setCheckoutError(error.message || 'Something went wrong. Please try again.')
     } finally {
       setProcessing(false)
     }
@@ -180,6 +180,16 @@ export default function SubscribePage() {
             ))}
           </div>
         </div>
+
+        {/* Checkout error */}
+        {checkoutError && (
+          <div className="max-w-3xl mx-auto mb-6 flex items-start gap-3 bg-red-500/8 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl text-sm animate-fadeIn">
+            <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+            {checkoutError}
+          </div>
+        )}
 
         {/* Pricing cards */}
         <div className="grid md:grid-cols-2 gap-5 max-w-3xl mx-auto mb-16 animate-fadeIn stagger-2">
@@ -292,7 +302,7 @@ export default function SubscribePage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                <div className={`overflow-hidden transition-all duration-200 ${openFaq === i ? 'max-h-40' : 'max-h-0'}`}>
+                <div className={`overflow-hidden transition-all duration-300 ${openFaq === i ? 'max-h-60' : 'max-h-0'}`}>
                   <p className="px-5 pb-4 text-gray-400 text-sm leading-relaxed">{faq.a}</p>
                 </div>
               </div>
