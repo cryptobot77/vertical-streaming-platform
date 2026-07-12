@@ -82,17 +82,17 @@ export default function Home() {
               {/* Stats bar */}
               <div className="flex items-center gap-6 pt-6 border-t border-white/8">
                 <div>
-                  <p className="text-2xl font-bold text-white">50K+</p>
+                  <p className="text-2xl font-bold text-white">0</p>
                   <p className="text-gray-500 text-sm">Active viewers</p>
                 </div>
                 <div className="w-px h-10 bg-white/10" />
                 <div>
-                  <p className="text-2xl font-bold text-white">1,200+</p>
+                  <p className="text-2xl font-bold text-white">0</p>
                   <p className="text-gray-500 text-sm">Episodes</p>
                 </div>
                 <div className="w-px h-10 bg-white/10" />
                 <div>
-                  <p className="text-2xl font-bold text-white">300+</p>
+                  <p className="text-2xl font-bold text-white">0</p>
                   <p className="text-gray-500 text-sm">Creators</p>
                 </div>
               </div>
@@ -274,10 +274,10 @@ export default function Home() {
               <div className="glass rounded-2xl p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="text-white font-semibold">Monthly Earnings</h4>
-                  <span className="text-xs text-green-400 bg-green-400/10 px-2 py-1 rounded-full">↑ 24%</span>
+                  <span className="text-xs text-green-400 bg-green-400/10 px-2 py-1 rounded-full">↑ 0%</span>
                 </div>
-                <p className="text-4xl font-bold text-white mb-1">$3,840</p>
-                <p className="text-gray-500 text-sm">from 1,280 premium views</p>
+                <p className="text-4xl font-bold text-white mb-1">$0</p>
+                <p className="text-gray-500 text-sm">growing audiance takes time</p>
                 <div className="mt-4 h-1.5 bg-white/10 rounded-full">
                   <div className="h-full w-3/4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" />
                 </div>
@@ -285,11 +285,11 @@ export default function Home() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="glass rounded-2xl p-5">
                   <p className="text-gray-400 text-xs mb-2">Total Views</p>
-                  <p className="text-2xl font-bold text-white">48.2K</p>
+                  <p className="text-2xl font-bold text-white">0</p>
                 </div>
                 <div className="glass rounded-2xl p-5">
                   <p className="text-gray-400 text-xs mb-2">Subscribers</p>
-                  <p className="text-2xl font-bold text-white">2,140</p>
+                  <p className="text-2xl font-bold text-white">0</p>
                 </div>
               </div>
               <button
