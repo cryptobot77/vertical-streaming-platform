@@ -24,7 +24,7 @@ export async function POST(request: Request) {
         video_quality: 'premium',
         meta: {
           creator_id: user.id,
-          original_filename: filename,
+          title: filename,
         },
       },
       cors_origin: process.env.NEXT_PUBLIC_APP_URL || '*',

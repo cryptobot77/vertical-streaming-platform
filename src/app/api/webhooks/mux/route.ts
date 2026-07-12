@@ -18,8 +18,7 @@ export async function POST(request: Request) {
   let event: any
 
   try {
-    const webhook = new Mux.Webhooks()
-    event = webhook.verify(
+    event = await mux.webhooks.unwrap(
       body,
       { 'mux-signature': signature },
       process.env.MUX_WEBHOOK_SECRET!
