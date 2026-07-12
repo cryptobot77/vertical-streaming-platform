@@ -278,6 +278,15 @@ a {
   }
 }
 
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 /* Animation utility classes */
 .animate-fadeIn {
   animation: fadeIn 0.4s ease-out both;
@@ -309,6 +318,10 @@ a {
 
 .animate-scroll-hint {
   animation: scroll-hint 1.5s ease-in-out infinite;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out both;
 }
 
 /* Stagger delays */

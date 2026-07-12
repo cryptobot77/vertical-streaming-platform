@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import VideoPlayer from '@/components/VideoPlayer'
+import CommentSheet from '@/components/CommentSheet'
 import { useUserStore } from '@/lib/store'
 
 interface Episode {
@@ -26,19 +27,26 @@ interface Episode {
   }
 }
 
+interface SocialCounts {
+  likes: number
+  comments: number
+  liked: boolean
+}
+
 export default function FeedPage() {
   const [episodes, setEpisodes] = useState<Episode[]>([])
   const [loading, setLoading] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [likedIds, setLikedIds] = useState<Set<string>>(new Set())
   const [showScrollHint, setShowScrollHint] = useState(true)
+  const [socialCounts, setSocialCounts] = useState<Record<string, SocialCounts>>({})
+  const [commentEpisodeId, setCommentEpisodeId] = useState<string | null>(null)
+  const [followStates, setFollowStates] = useState<Record<string, boolean>>({})
   const { isPremium } = useUserStore()
   const router = useRouter()
   const supabase = createClient()
 
   useEffect(() => {
     fetchEpisodes()
-    // Hide scroll hint after 4 seconds or first scroll
     const timer = setTimeout(() => setShowScrollHint(false), 4000)
     return () => clearTimeout(timer)
   }, [])
@@ -64,10 +72,26 @@ export default function FeedPage() {
 
       if (error) throw error
       setEpisodes(data || [])
+
+      // Fetch social counts for all episodes
+      if (data && data.length > 0) {
+        const ids = data.map(e => e.id).join(',')
+        fetchSocialCounts(ids)
+      }
     } catch (error) {
       console.error('Error fetching episodes:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchSocialCounts = async (episodeIds: string) => {
+    try {
+      const res = await fetch(`/api/social/count?episode_ids=${episodeIds}`)
+      const data = await res.json()
+      setSocialCounts(data.counts || {})
+    } catch (error) {
+      console.error('Error fetching social counts:', error)
     }
   }
 
@@ -86,13 +110,66 @@ export default function FeedPage() {
     router.push('/subscribe')
   }
 
-  const handleLike = (id: string, e: React.MouseEvent) => {
+  const handleLike = async (episodeId: string, e: React.MouseEvent) => {
     e.stopPropagation()
-    setLikedIds(prev => {
-      const next = new Set(prev)
-      next.has(id) ? next.delete(id) : next.add(id)
-      return next
-    })
+    // Optimistic update
+    setSocialCounts(prev => ({
+      ...prev,
+      [episodeId]: {
+        ...prev[episodeId],
+        liked: !prev[episodeId]?.liked,
+        likes: prev[episodeId]?.liked
+          ? (prev[episodeId]?.likes || 1) - 1
+          : (prev[episodeId]?.likes || 0) + 1,
+      },
+    }))
+
+    try {
+      const res = await fetch('/api/social/like', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ episode_id: episodeId }),
+      })
+      const data = await res.json()
+      setSocialCounts(prev => ({
+        ...prev,
+        [episodeId]: {
+          ...prev[episodeId],
+          liked: data.liked,
+          likes: data.count,
+        },
+      }))
+    } catch (error) {
+      // Revert on error
+      setSocialCounts(prev => ({
+        ...prev,
+        [episodeId]: {
+          ...prev[episodeId],
+          liked: !prev[episodeId]?.liked,
+          likes: prev[episodeId]?.liked
+            ? (prev[episodeId]?.likes || 0) + 1
+            : Math.max((prev[episodeId]?.likes || 1) - 1, 0),
+        },
+      }))
+    }
+  }
+
+  const handleFollow = async (creatorId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    // Optimistic update
+    setFollowStates(prev => ({ ...prev, [creatorId]: !prev[creatorId] }))
+
+    try {
+      const res = await fetch('/api/social/follow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ following_id: creatorId }),
+      })
+      const data = await res.json()
+      setFollowStates(prev => ({ ...prev, [creatorId]: data.following }))
+    } catch (error) {
+      setFollowStates(prev => ({ ...prev, [creatorId]: !prev[creatorId] }))
+    }
   }
 
   const handleShare = (episode: Episode, e: React.MouseEvent) => {
@@ -112,7 +189,7 @@ export default function FeedPage() {
       <div className="h-screen flex items-center justify-center bg-black">
         <div className="text-center">
           <div className="w-12 h-12 border-2 border-white/10 border-t-purple-500 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-500 text-sm">Loading your feed…</p>
+          <p className="text-gray-500 text-sm">Loading your feed...</p>
         </div>
       </div>
     )
@@ -133,148 +210,159 @@ export default function FeedPage() {
               </svg>
             </div>
             <h2 className="text-2xl font-semibold text-white mb-2 tracking-tight">No episodes yet</h2>
-            <p className="text-gray-500 mb-6">Check back soon — or create some content!</p>
+            <p className="text-gray-500 mb-6">Check back soon - or create some content!</p>
             <a
-              href="/signup"
+              href="/discover"
               className="btn-primary text-sm px-6 py-3"
             >
-              Become a Creator
+              Explore Content
             </a>
           </div>
         </div>
       ) : (
         <>
-          {episodes.map((episode, index) => (
-            <div
-              key={episode.id}
-              className="h-screen w-full snap-start relative"
-              style={{ scrollSnapAlign: 'start' }}
-            >
-              <VideoPlayer
-                videoUrl={episode.hls_playback_url || ''}
-                fallbackUrl={episode.source_video_url}
-                videoId={episode.id}
-                title={episode.title}
-                isPremiumLocked={episode.is_premium_locked && !isPremium}
-                processingStatus={episode.processing_status || undefined}
-                onUnlock={handleUnlockPremium}
-              />
+          {episodes.map((episode, index) => {
+            const counts = socialCounts[episode.id] || { likes: 0, comments: 0, liked: false }
+            const creatorId = episode.series.creator.username
+            const isFollowing = followStates[creatorId] || false
 
-              {/* ── Episode info overlay ── */}
-              <div className="absolute bottom-0 left-0 right-0 pointer-events-none"
-                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 50%, transparent 100%)' }}
+            return (
+              <div
+                key={episode.id}
+                className="h-screen w-full snap-start relative"
+                style={{ scrollSnapAlign: 'start' }}
               >
-                <div className="p-4 pb-6 pointer-events-auto">
-                  {/* Creator info row */}
-                  <div className="flex items-center gap-3 mb-3">
-                    {episode.series.creator.avatar_url ? (
-                      <img
-                        src={episode.series.creator.avatar_url}
-                        alt={episode.series.creator.display_name || episode.series.creator.username}
-                        className="w-9 h-9 rounded-full object-cover border-2 border-white/20"
-                      />
-                    ) : (
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center flex-shrink-0 border-2 border-white/20">
-                        <span className="text-xs font-bold text-white">
-                          {(episode.series.creator.display_name || episode.series.creator.username || 'U').charAt(0).toUpperCase()}
-                        </span>
+                <VideoPlayer
+                  videoUrl={episode.hls_playback_url || ''}
+                  fallbackUrl={episode.source_video_url}
+                  videoId={episode.id}
+                  title={episode.title}
+                  isPremiumLocked={episode.is_premium_locked && !isPremium}
+                  processingStatus={episode.processing_status || undefined}
+                  onUnlock={handleUnlockPremium}
+                />
+
+                {/* Episode info overlay */}
+                <div className="absolute bottom-0 left-0 right-0 pointer-events-none"
+                  style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 50%, transparent 100%)' }}
+                >
+                  <div className="p-4 pb-6 pointer-events-auto">
+                    {/* Creator info row */}
+                    <div className="flex items-center gap-3 mb-3">
+                      {episode.series.creator.avatar_url ? (
+                        <img
+                          src={episode.series.creator.avatar_url}
+                          alt={episode.series.creator.display_name || episode.series.creator.username}
+                          className="w-9 h-9 rounded-full object-cover border-2 border-white/20"
+                        />
+                      ) : (
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center flex-shrink-0 border-2 border-white/20">
+                          <span className="text-xs font-bold text-white">
+                            {(episode.series.creator.display_name || episode.series.creator.username || 'U').charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white text-sm font-semibold truncate">
+                          {episode.series.creator.display_name || episode.series.creator.username}
+                        </p>
+                        <p className="text-gray-400 text-xs truncate">{episode.series.title}</p>
                       </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white text-sm font-semibold truncate">
-                        {episode.series.creator.display_name || episode.series.creator.username}
+                      <button
+                        onClick={(e) => handleFollow(creatorId, e)}
+                        className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                          isFollowing
+                            ? 'bg-white/10 text-white border border-white/20'
+                            : 'border border-white/30 text-white hover:bg-white/10'
+                        }`}
+                      >
+                        {isFollowing ? 'Following' : 'Follow'}
+                      </button>
+                    </div>
+
+                    {/* Episode title & description */}
+                    <h3 className="text-white text-base font-semibold mb-1 leading-tight">
+                      {episode.title}
+                    </h3>
+                    {episode.description && (
+                      <p className="text-gray-400 text-xs line-clamp-2 mb-3 leading-relaxed">
+                        {episode.description}
                       </p>
-                      <p className="text-gray-400 text-xs truncate">{episode.series.title}</p>
-                    </div>
-                    <button
-                      className="flex-shrink-0 px-4 py-1.5 border border-white/30 rounded-full text-white text-xs font-semibold hover:bg-white/10 transition-colors"
-                    >
-                      Follow
-                    </button>
-                  </div>
+                    )}
 
-                  {/* Episode title & description */}
-                  <h3 className="text-white text-base font-semibold mb-1 leading-tight">
-                    {episode.title}
-                  </h3>
-                  {episode.description && (
-                    <p className="text-gray-400 text-xs line-clamp-2 mb-3 leading-relaxed">
-                      {episode.description}
-                    </p>
-                  )}
-
-                  {/* Action row */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-5">
-                      {/* Like */}
-                      <button
-                        onClick={(e) => handleLike(episode.id, e)}
-                        className="flex flex-col items-center gap-0.5 group"
-                        aria-label="Like"
-                      >
-                        <svg
-                          className={`w-7 h-7 transition-all duration-200 ${likedIds.has(episode.id) ? 'text-pink-500 scale-110' : 'text-white group-hover:text-pink-400 group-hover:scale-110'}`}
-                          fill={likedIds.has(episode.id) ? 'currentColor' : 'none'}
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
+                    {/* Action row */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-5">
+                        {/* Like */}
+                        <button
+                          onClick={(e) => handleLike(episode.id, e)}
+                          className="flex flex-col items-center gap-0.5 group"
+                          aria-label="Like"
                         >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                        <span className="text-white text-[10px]">{likedIds.has(episode.id) ? '1' : '0'}</span>
-                      </button>
+                          <svg
+                            className={`w-7 h-7 transition-all duration-200 ${counts.liked ? 'text-pink-500 scale-110' : 'text-white group-hover:text-pink-400 group-hover:scale-110'}`}
+                            fill={counts.liked ? 'currentColor' : 'none'}
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                          </svg>
+                          <span className="text-white text-[10px]">{counts.likes}</span>
+                        </button>
 
-                      {/* Comment */}
-                      <button
-                        className="flex flex-col items-center gap-0.5 group"
-                        aria-label="Comments"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <svg className="w-7 h-7 text-white group-hover:text-purple-400 group-hover:scale-110 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                        </svg>
-                        <span className="text-white text-[10px]">0</span>
-                      </button>
+                        {/* Comment */}
+                        <button
+                          className="flex flex-col items-center gap-0.5 group"
+                          aria-label="Comments"
+                          onClick={(e) => { e.stopPropagation(); setCommentEpisodeId(episode.id) }}
+                        >
+                          <svg className="w-7 h-7 text-white group-hover:text-purple-400 group-hover:scale-110 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                          </svg>
+                          <span className="text-white text-[10px]">{counts.comments}</span>
+                        </button>
 
-                      {/* Share */}
+                        {/* Share */}
+                        <button
+                          onClick={(e) => handleShare(episode, e)}
+                          className="flex flex-col items-center gap-0.5 group"
+                          aria-label="Share"
+                        >
+                          <svg className="w-7 h-7 text-white group-hover:text-cyan-400 group-hover:scale-110 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                          </svg>
+                          <span className="text-white text-[10px]">Share</span>
+                        </button>
+                      </div>
+
                       <button
-                        onClick={(e) => handleShare(episode, e)}
-                        className="flex flex-col items-center gap-0.5 group"
-                        aria-label="Share"
+                        onClick={(e) => { e.stopPropagation(); router.push(`/feed/series/${episode.series.id}`) }}
+                        className="px-4 py-2 bg-white/10 backdrop-blur-sm text-white rounded-full text-xs font-semibold hover:bg-white/20 transition-colors border border-white/15"
                       >
-                        <svg className="w-7 h-7 text-white group-hover:text-cyan-400 group-hover:scale-110 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                        </svg>
-                        <span className="text-white text-[10px]">Share</span>
+                        View Series
                       </button>
                     </div>
-
-                    <button
-                      onClick={(e) => { e.stopPropagation(); router.push(`/feed/series/${episode.series.id}`) }}
-                      className="px-4 py-2 bg-white/10 backdrop-blur-sm text-white rounded-full text-xs font-semibold hover:bg-white/20 transition-colors border border-white/15"
-                    >
-                      View Series
-                    </button>
                   </div>
                 </div>
-              </div>
 
-              {/* ── Scroll dot indicators (right side) ── */}
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 pointer-events-none">
-                {episodes.map((_, i) => (
-                  <div
-                    key={i}
-                    className={`rounded-full transition-all duration-300 ${
-                      i === currentIndex
-                        ? 'w-1.5 h-4 bg-white'
-                        : 'w-1.5 h-1.5 bg-white/30'
-                    }`}
-                  />
-                ))}
+                {/* Scroll dot indicators */}
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col gap-1.5 pointer-events-none">
+                  {episodes.map((_, i) => (
+                    <div
+                      key={i}
+                      className={`rounded-full transition-all duration-300 ${
+                        i === currentIndex
+                          ? 'w-1.5 h-4 bg-white'
+                          : 'w-1.5 h-1.5 bg-white/30'
+                      }`}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
 
-          {/* ── First-time scroll hint ── */}
+          {/* Scroll hint */}
           {showScrollHint && (
             <div className="fixed bottom-24 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 pointer-events-none z-30 animate-fadeIn">
               <p className="text-white/60 text-xs">Scroll for more</p>
@@ -285,6 +373,13 @@ export default function FeedPage() {
           )}
         </>
       )}
+
+      {/* Comment Sheet */}
+      <CommentSheet
+        episodeId={commentEpisodeId || ''}
+        isOpen={!!commentEpisodeId}
+        onClose={() => setCommentEpisodeId(null)}
+      />
     </div>
   )
 }
