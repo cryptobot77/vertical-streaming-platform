@@ -34,7 +34,7 @@ export default function CommentSheet({ episodeId, isOpen, onClose }: CommentShee
   useEffect(() => {
     if (isOpen) {
       loadComments()
-      supabase.auth.getUser().then(({ data: { user } }) => {
+      supabase.auth.getUser().then(({ data: { user } }: { data: { user: any } }) => {
         setCurrentUserId(user?.id || null)
       })
     }

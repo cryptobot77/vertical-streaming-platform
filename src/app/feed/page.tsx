@@ -75,7 +75,7 @@ export default function FeedPage() {
 
       // Fetch social counts for all episodes
       if (data && data.length > 0) {
-        const ids = data.map(e => e.id).join(',')
+        const ids = data.map((e: { id: string }) => e.id).join(',')
         fetchSocialCounts(ids)
       }
     } catch (error) {
