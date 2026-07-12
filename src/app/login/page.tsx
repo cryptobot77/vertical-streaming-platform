@@ -99,13 +99,12 @@ export default function LoginPage() {
                 <label className="block text-xs font-medium text-gray-400" htmlFor="password">
                   Password
                 </label>
-                <a
-                  href="#"
+                <Link
+                  href="/forgot-password"
                   className="text-xs text-purple-400 hover:text-purple-300 transition-colors"
-                  onClick={(e) => e.preventDefault()}
                 >
                   Forgot password?
-                </a>
+                </Link>
               </div>
               <div className="relative">
                 <input

@@ -59,6 +59,11 @@ export default function SubscribePage() {
   const handleSubscribe = async (priceId: string) => {
     setProcessing(true)
     setCheckoutError(null)
+    if (!priceId) {
+      setCheckoutError('Subscription is not configured yet. Please contact support.')
+      setProcessing(false)
+      return
+    }
     try {
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
@@ -88,7 +93,7 @@ export default function SubscribePage() {
         'HD & 4K streaming',
         'Cancel anytime',
       ],
-      priceId: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID || 'price_monthly',
+      priceId: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID!,
     },
     yearly: {
       name: 'Yearly',
@@ -103,7 +108,7 @@ export default function SubscribePage() {
         'Save 17% vs monthly',
         'Priority support',
       ],
-      priceId: process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID || 'price_yearly',
+      priceId: process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID!,
     },
   }
 
