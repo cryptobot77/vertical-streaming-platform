@@ -6,20 +6,25 @@ import { useVideoStore } from '@/lib/store'
 
 interface VideoPlayerProps {
   videoUrl: string
+  fallbackUrl?: string | null
   videoId: string
   title: string
   isPremiumLocked?: boolean
+  processingStatus?: string
   onUnlock?: () => void
 }
 
 export default function VideoPlayer({
   videoUrl,
+  fallbackUrl,
   videoId,
   title,
   isPremiumLocked = false,
+  processingStatus,
   onUnlock,
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const hlsRef = useRef<any>(null)
   const { ref, inView } = useInView({
     threshold: 0.8,
     triggerOnce: false,
@@ -33,7 +38,19 @@ export default function VideoPlayer({
   const [showControls, setShowControls] = useState(false)
   const [showTapFeedback, setShowTapFeedback] = useState(false)
   const [tapFeedbackAction, setTapFeedbackAction] = useState<'play' | 'pause'>('pause')
+  const [activeUrl, setActiveUrl] = useState(videoUrl || fallbackUrl || '')
   const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Determine the best video source
+  useEffect(() => {
+    if (videoUrl && videoUrl.includes('.m3u8')) {
+      setActiveUrl(videoUrl)
+    } else if (videoUrl) {
+      setActiveUrl(videoUrl)
+    } else if (fallbackUrl) {
+      setActiveUrl(fallbackUrl)
+    }
+  }, [videoUrl, fallbackUrl])
 
   // Auto-play when in view
   useEffect(() => {
@@ -131,6 +148,26 @@ export default function VideoPlayer({
     return `${m}:${sec.toString().padStart(2, '0')}`
   }
 
+  const isHLS = activeUrl?.includes('.m3u8')
+  const isProcessing = processingStatus === 'processing'
+
+  // Processing overlay
+  if (isProcessing) {
+    return (
+      <div ref={ref} className="relative w-full h-full bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-500/15 flex items-center justify-center border border-purple-500/25">
+            <svg className="w-8 h-8 text-purple-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </div>
+          <h3 className="text-white text-lg font-semibold mb-1">Processing Video</h3>
+          <p className="text-gray-400 text-sm">This video is being transcoded and will be available shortly</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div
       ref={ref}
@@ -139,7 +176,7 @@ export default function VideoPlayer({
       onMouseMove={showControlsTemporarily}
     >
       {isPremiumLocked ? (
-        /* ── Premium lock overlay ── */
+        /* Premium lock overlay */
         <div className="absolute inset-0 flex flex-col items-center justify-center glass-dark z-10">
           <div className="w-20 h-20 mb-5 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-2xl shadow-purple-500/40 animate-pulse-glow">
             <svg className="w-9 h-9 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -162,10 +199,10 @@ export default function VideoPlayer({
         </div>
       ) : (
         <>
-          {/* ── Video element ── */}
+          {/* Video element */}
           <video
             ref={videoRef}
-            src={videoUrl}
+            src={isHLS ? undefined : activeUrl}
             className="w-full h-full object-cover"
             loop
             playsInline
@@ -175,16 +212,21 @@ export default function VideoPlayer({
             onLoadedMetadata={handleLoadedMetadata}
             onWaiting={handleWaiting}
             onCanPlay={handleCanPlay}
-          />
+          >
+            {isHLS && activeUrl && (
+              <source src={activeUrl} type="application/x-mpegURL" />
+            )}
+            Your browser does not support the video tag.
+          </video>
 
-          {/* ── Buffering spinner ── */}
+          {/* Buffering spinner */}
           {isBuffering && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="w-14 h-14 border-2 border-white/20 border-t-white rounded-full animate-spin" />
             </div>
           )}
 
-          {/* ── Play/Pause tap feedback ── */}
+          {/* Play/Pause tap feedback */}
           {showTapFeedback && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center animate-fadeInScale">
@@ -201,7 +243,7 @@ export default function VideoPlayer({
             </div>
           )}
 
-          {/* ── Controls overlay — always visible on mobile, hover on desktop ── */}
+          {/* Controls overlay */}
           <div
             className={`absolute inset-0 flex flex-col justify-end transition-opacity duration-300 ${
               showControls ? 'opacity-100' : 'opacity-0 md:group-hover:opacity-100'
@@ -209,7 +251,6 @@ export default function VideoPlayer({
             style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 40%, transparent 70%)' }}
           >
             <div className="p-4 pb-3 space-y-3" onClick={(e) => e.stopPropagation()}>
-              {/* Title */}
               <h3 className="text-white font-semibold text-base leading-tight text-shadow">{title}</h3>
 
               {/* Progress bar */}
@@ -227,7 +268,6 @@ export default function VideoPlayer({
 
               {/* Control buttons + time */}
               <div className="flex items-center gap-3">
-                {/* Play/Pause */}
                 <button
                   onClick={(e) => { e.stopPropagation(); handlePlayPause() }}
                   className="w-9 h-9 bg-white/15 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/25 transition-colors"
@@ -244,7 +284,6 @@ export default function VideoPlayer({
                   )}
                 </button>
 
-                {/* Mute toggle */}
                 <button
                   onClick={handleToggleMute}
                   className="w-9 h-9 bg-white/15 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white/25 transition-colors"
@@ -261,7 +300,6 @@ export default function VideoPlayer({
                   )}
                 </button>
 
-                {/* Time display */}
                 <span className="text-white/70 text-xs ml-auto">
                   {formatTime((progress / 100) * duration)} / {formatTime(duration)}
                 </span>
@@ -269,7 +307,7 @@ export default function VideoPlayer({
             </div>
           </div>
 
-          {/* ── Mobile: always-visible mute button (bottom-right, doesn't require hover) ── */}
+          {/* Mobile: always-visible mute button */}
           <div className="absolute bottom-20 right-4 md:hidden" onClick={(e) => e.stopPropagation()}>
             <button
               onClick={handleToggleMute}

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import VideoPlayer from '@/components/VideoPlayer'
 import { useUserStore } from '@/lib/store'
@@ -25,12 +25,15 @@ interface Episode {
   description: string
   episode_number: number
   hls_playback_url: string
+  source_video_url: string | null
+  processing_status: string | null
   is_premium_locked: boolean
   duration_seconds: number
 }
 
 export default function SeriesPage() {
   const params = useParams()
+  const router = useRouter()
   const [series, setSeries] = useState<Series | null>(null)
   const [episodes, setEpisodes] = useState<Episode[]>([])
   const [loading, setLoading] = useState(true)
@@ -85,7 +88,7 @@ export default function SeriesPage() {
   }
 
   const handleUnlockPremium = () => {
-    window.location.href = '/subscribe'
+    router.push('/subscribe')
   }
 
   const formatDuration = (seconds: number) => {
@@ -120,9 +123,11 @@ export default function SeriesPage() {
         {selectedEpisode ? (
           <VideoPlayer
             videoUrl={selectedEpisode.hls_playback_url || ''}
+            fallbackUrl={selectedEpisode.source_video_url}
             videoId={selectedEpisode.id}
             title={selectedEpisode.title}
             isPremiumLocked={selectedEpisode.is_premium_locked && !isPremium}
+            processingStatus={selectedEpisode.processing_status || undefined}
             onUnlock={handleUnlockPremium}
           />
         ) : (
@@ -195,9 +200,22 @@ export default function SeriesPage() {
                 <div className="flex-1 text-left">
                   <h3 className="text-white font-medium mb-1">{episode.title}</h3>
                   <div className="flex items-center space-x-3">
-                    {episode.duration_seconds && (
+                    {episode.duration_seconds > 0 && (
                       <span className="text-gray-400 text-sm">
                         {formatDuration(episode.duration_seconds)}
+                      </span>
+                    )}
+                    {episode.processing_status === 'processing' && (
+                      <span className="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded-full flex items-center gap-1">
+                        <svg className="w-3 h-3 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Processing
+                      </span>
+                    )}
+                    {episode.processing_status === 'failed' && (
+                      <span className="px-2 py-0.5 bg-red-500/20 text-red-400 text-xs rounded-full">
+                        Failed
                       </span>
                     )}
                     {episode.is_premium_locked && (

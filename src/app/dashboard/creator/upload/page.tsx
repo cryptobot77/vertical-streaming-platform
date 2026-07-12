@@ -25,6 +25,8 @@ function UploadContent() {
   const [step, setStep] = useState<'series' | 'episode'>('series')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [uploadStatus, setUploadStatus] = useState('')
 
   // Series form state
   const [seriesTitle, setSeriesTitle] = useState('')
@@ -101,7 +103,7 @@ function UploadContent() {
       if (coverImage) {
         const path = `covers/${user.id}/${Date.now()}_${coverImage.name}`
         coverImageUrl = await uploadToSupabaseStorage(coverImage, path)
-        
+
         const { data: { publicUrl } } = supabase.storage
           .from('videos')
           .getPublicUrl(path)
@@ -132,23 +134,64 @@ function UploadContent() {
     e.preventDefault()
     setLoading(true)
     setError(null)
+    setUploadProgress(0)
 
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Not authenticated')
-
       if (!videoFile) throw new Error('Please select a video file')
 
-      // Upload video to Supabase Storage
-      const videoPath = `episodes/${selectedSeriesId}/${Date.now()}_${videoFile.name}`
-      await uploadToSupabaseStorage(videoFile, videoPath)
+      // Step 1: Get Mux upload URL
+      setUploadStatus('Preparing upload...')
+      const muxResponse = await fetch('/api/mux/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: videoFile.name }),
+      })
 
-      // In production, you would send this to Mux for transcoding
-      // For now, we'll use the direct storage URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('videos')
-        .getPublicUrl(videoPath)
+      if (!muxResponse.ok) {
+        const muxError = await muxResponse.json()
+        throw new Error(muxError.error || 'Failed to prepare Mux upload')
+      }
 
+      const { upload_url, upload_id } = await muxResponse.json()
+
+      // Step 2: Upload to Mux and Supabase Storage in parallel
+      setUploadStatus('Uploading video...')
+      setUploadProgress(10)
+
+      const sourceVideoPath = `episodes/${selectedSeriesId}/${Date.now()}_${videoFile.name}`
+
+      const uploadToMux = async () => {
+        const response = await fetch(upload_url, {
+          method: 'PUT',
+          headers: { 'Content-Type': videoFile.type || 'video/mp4' },
+          body: videoFile,
+        })
+        if (!response.ok) throw new Error('Mux upload failed')
+        return response
+      }
+
+      const uploadToStorage = async () => {
+        const { data, error } = await supabase.storage
+          .from('videos')
+          .upload(sourceVideoPath, videoFile)
+        if (error) throw error
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('videos')
+          .getPublicUrl(sourceVideoPath)
+        return publicUrl
+      }
+
+      // Run both uploads in parallel
+      setUploadProgress(15)
+      const [, sourceVideoUrl] = await Promise.all([uploadToMux(), uploadToStorage()])
+
+      setUploadProgress(70)
+      setUploadStatus('Saving episode...')
+
+      // Step 3: Insert episode record with source URL and processing status
       const { error } = await supabase
         .from('episodes')
         .insert({
@@ -156,13 +199,21 @@ function UploadContent() {
           title: episodeTitle,
           description: episodeDescription,
           episode_number: episodeNumber,
-          hls_playback_url: publicUrl,
+          source_video_url: sourceVideoUrl,
+          hls_playback_url: null,
+          mux_asset_id: `upload:${upload_id}`,
+          processing_status: 'processing',
           is_premium_locked: isPremiumLocked,
-          duration_seconds: 0, // Would be populated by Mux
+          duration_seconds: 0,
         })
 
       if (error) throw error
 
+      setUploadProgress(100)
+      setUploadStatus('Upload complete! Video is processing...')
+
+      // Brief pause to show success before redirect
+      await new Promise(resolve => setTimeout(resolve, 1500))
       router.push('/dashboard/creator')
     } catch (error: any) {
       setError(error.message)
@@ -188,8 +239,8 @@ function UploadContent() {
             {step === 'series' ? 'Create New Series' : 'Add New Episode'}
           </h1>
           <p className="text-gray-400">
-            {step === 'series' 
-              ? 'Start a new series to organize your content' 
+            {step === 'series'
+              ? 'Start a new series to organize your content'
               : 'Upload a new episode to your series'}
           </p>
         </div>
@@ -197,6 +248,23 @@ function UploadContent() {
         {error && (
           <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg mb-6">
             {error}
+          </div>
+        )}
+
+        {loading && uploadStatus && (
+          <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg mb-6 p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-5 h-5 border-2 border-purple-400/30 border-t-purple-400 rounded-full animate-spin" />
+              <span className="text-purple-300 text-sm font-medium">{uploadStatus}</span>
+            </div>
+            {uploadProgress > 0 && (
+              <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-300"
+                  style={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+            )}
           </div>
         )}
 
@@ -392,7 +460,7 @@ function UploadContent() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !videoFile}
               className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Uploading Episode...' : 'Upload Episode'}

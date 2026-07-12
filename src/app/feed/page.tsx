@@ -11,6 +11,8 @@ interface Episode {
   title: string
   description: string
   hls_playback_url: string
+  source_video_url: string | null
+  processing_status: string | null
   is_premium_locked: boolean
   series: {
     id: string
@@ -150,9 +152,11 @@ export default function FeedPage() {
             >
               <VideoPlayer
                 videoUrl={episode.hls_playback_url || ''}
+                fallbackUrl={episode.source_video_url}
                 videoId={episode.id}
                 title={episode.title}
                 isPremiumLocked={episode.is_premium_locked && !isPremium}
+                processingStatus={episode.processing_status || undefined}
                 onUnlock={handleUnlockPremium}
               />
 
