@@ -17,6 +17,7 @@ interface Series {
     title: string
     episode_number: number
     is_premium_locked: boolean
+    processing_status: string | null
     created_at: string
   }[]
 }
@@ -45,6 +46,7 @@ export default function CreatorDashboard() {
             title,
             episode_number,
             is_premium_locked,
+            processing_status,
             created_at
           )
         `)
@@ -65,6 +67,27 @@ export default function CreatorDashboard() {
     (sum, s) => sum + s.episodes.filter(e => e.is_premium_locked).length,
     0
   )
+  const processingEpisodes = series.reduce(
+    (sum, s) => sum + s.episodes.filter(e => e.processing_status === 'processing').length,
+    0
+  )
+
+  const handleDeleteEpisode = async (episodeId: string) => {
+    if (!confirm('Are you sure you want to delete this episode?')) return
+
+    try {
+      const { error } = await supabase.from('episodes').delete().eq('id', episodeId)
+      if (error) throw error
+      setSeries(prev =>
+        prev.map(s => ({
+          ...s,
+          episodes: s.episodes.filter(e => e.id !== episodeId),
+        }))
+      )
+    } catch (error) {
+      console.error('Error deleting episode:', error)
+    }
+  }
 
   if (loading) {
     return (
@@ -96,7 +119,7 @@ export default function CreatorDashboard() {
         </div>
 
         {/* Stats bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10 animate-fadeIn stagger-1">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-10 animate-fadeIn stagger-1">
           {[
             { label: 'Series', value: series.length, icon: (
               <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -118,6 +141,11 @@ export default function CreatorDashboard() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             )},
+            ...(processingEpisodes > 0 ? [{ label: 'Processing', value: processingEpisodes, icon: (
+              <svg className="w-5 h-5 text-orange-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            )}] : []),
           ].map(({ label, value, icon }) => (
             <div key={label} className="bg-white/4 border border-white/8 rounded-2xl p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0">
@@ -199,6 +227,39 @@ export default function CreatorDashboard() {
                   </h3>
                   {s.description && (
                     <p className="text-gray-500 text-xs mb-3 line-clamp-2 leading-relaxed">{s.description}</p>
+                  )}
+
+                  {/* Episode list */}
+                  {s.episodes.length > 0 && (
+                    <div className="mb-3 space-y-1.5 max-h-32 overflow-y-auto">
+                      {s.episodes
+                        .sort((a, b) => a.episode_number - b.episode_number)
+                        .map((ep) => (
+                          <div key={ep.id} className="flex items-center gap-2 text-xs group/ep">
+                            <span className="text-gray-500 w-4 text-right flex-shrink-0">{ep.episode_number}</span>
+                            <span className="text-gray-300 truncate flex-1">{ep.title}</span>
+                            {ep.processing_status === 'processing' && (
+                              <svg className="w-3 h-3 text-orange-400 animate-spin flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                              </svg>
+                            )}
+                            {ep.is_premium_locked && (
+                              <svg className="w-3 h-3 text-yellow-400 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                              </svg>
+                            )}
+                            <button
+                              onClick={() => handleDeleteEpisode(ep.id)}
+                              className="opacity-0 group-hover/ep:opacity-100 text-gray-500 hover:text-red-400 transition-all flex-shrink-0"
+                              aria-label="Delete episode"
+                            >
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                        ))}
+                    </div>
                   )}
 
                   {/* Action buttons */}
