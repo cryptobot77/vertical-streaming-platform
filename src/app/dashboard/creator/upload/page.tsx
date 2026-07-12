@@ -160,7 +160,7 @@ export default function UploadPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black p-6">
+    <div className="min-h-screen bg-black p-6 pt-20">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
           <button

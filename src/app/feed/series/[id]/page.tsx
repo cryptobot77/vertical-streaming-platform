@@ -96,7 +96,7 @@ export default function SeriesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="min-h-screen flex items-center justify-center bg-black pt-16">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
       </div>
     )
@@ -104,7 +104,7 @@ export default function SeriesPage() {
 
   if (!series) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="min-h-screen flex items-center justify-center bg-black pt-16">
         <div className="text-center">
           <h2 className="text-2xl font-semibold text-white mb-2">Series not found</h2>
           <p className="text-gray-400">The series you're looking for doesn't exist</p>
@@ -114,7 +114,7 @@ export default function SeriesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black pt-16">
       {/* Video Player Section */}
       <div className="relative w-full aspect-[9/16] md:aspect-video bg-black">
         {selectedEpisode ? (
