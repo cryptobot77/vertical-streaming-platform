@@ -1,0 +1,212 @@
+# Base44 sandbox environment for StreamVault.
+#
+# Runs the app straight from the cloned source (`next dev`, live reload) together
+# with a self-contained Supabase-compatible stack — Postgres + GoTrue (auth) +
+# PostgREST (data API) behind an nginx gateway — so the preview works without a
+# hosted Supabase project.
+#
+# The JWT secret / anon key / database password below are generated for this
+# sandbox only (development credentials for local infrastructure, not user
+# secrets). Real third-party credentials (Stripe, Mux) arrive as app secrets in
+# the platform-managed file /run/base44/app.env, which is loaded last and wins.
+#
+#   docker compose -f docker-compose.base44.yml up -d --build
+#
+name: streamvault
+
+x-jwt-secret: &jwt-secret "60541aa8698de615a66029ddc62f10ac08b7471ca7778794c35a010a76d6abfe"
+x-anon-key: &anon-key "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzkxNTAwNTIzLCJleHAiOjQxMDI0NDQ4MDB9.MR6K7zbRvhcE4kri-95nJC_C0Di26GvXAuY9VvczfWc"
+x-postgres-password: &postgres-password "postgres"
+
+services:
+  # ---- Postgres (Supabase build: roles, extensions, auth/storage schemas) ----
+  db:
+    image: supabase/postgres:15.19.0.004
+    restart: on-failure
+    environment:
+      POSTGRES_PASSWORD: *postgres-password
+      POSTGRES_DB: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      # Must sort after the image's own "migrate.sh" so the roles exist first.
+      - ./docker/supabase/init/00-roles.sh:/docker-entrypoint-initdb.d/zzz-roles.sh:ro
+    healthcheck:
+      # TCP, so this only passes once the real server is up (the image runs a
+      # socket-only temporary server while the init scripts are applying).
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 30s
+
+  # ---- GoTrue: email/password auth, issues the JWTs PostgREST trusts ----
+  auth:
+    image: supabase/gotrue:v2.197.0
+    restart: on-failure
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: "9999"
+      PORT: "9999"
+      API_EXTERNAL_URL: https://8000-${BASE44_PUBLIC_HOST_SUFFIX}
+      GOTRUE_SITE_URL: https://3000-${BASE44_PUBLIC_HOST_SUFFIX}
+      GOTRUE_URI_ALLOW_LIST: https://3000-${BASE44_PUBLIC_HOST_SUFFIX}/**
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:postgres@db:5432/postgres
+      GOTRUE_JWT_SECRET: *jwt-secret
+      GOTRUE_JWT_AUD: authenticated
+      GOTRUE_JWT_ADMIN_ROLES: service_role
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_JWT_EXP: "3600"
+      GOTRUE_DISABLE_SIGNUP: "false"
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
+      GOTRUE_EXTERNAL_PHONE_ENABLED: "false"
+      GOTRUE_EXTERNAL_ANONYMOUS_USERS_ENABLED: "false"
+      # No SMTP in the sandbox: sign-up works immediately, password-reset mails
+      # are not delivered.
+      GOTRUE_MAILER_AUTOCONFIRM: "true"
+      GOTRUE_MAILER_URLPATHS_INVITE: /auth/v1/verify
+      GOTRUE_MAILER_URLPATHS_CONFIRMATION: /auth/v1/verify
+      GOTRUE_MAILER_URLPATHS_RECOVERY: /auth/v1/verify
+      GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE: /auth/v1/verify
+      GOTRUE_LOG_LEVEL: info
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:9999/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 20s
+
+  # ---- One-shot: public schema + development seed ----
+  # Waits for GoTrue so its auth migrations are applied before the trigger on
+  # auth.users and any seeded auth rows are created.
+  migrate:
+    image: postgres:15
+    depends_on:
+      db:
+        condition: service_healthy
+      auth:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGUSER: postgres
+      PGDATABASE: postgres
+      PGPASSWORD: *postgres-password
+    volumes:
+      - ./src/lib/supabase/schema.sql:/sql/10-schema.sql:ro
+      - ./docker/supabase/init/20-seed.sql:/sql/20-seed.sql:ro
+      - ./docker/supabase/migrate.sh:/scripts/migrate.sh:ro
+    entrypoint: ["sh", "/scripts/migrate.sh"]
+
+  # ---- PostgREST: the /rest/v1 data API the app's Supabase client talks to ----
+  rest:
+    build:
+      context: ./docker/postgrest
+    restart: on-failure
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      PGRST_DB_URI: postgres://authenticator:postgres@db:5432/postgres
+      PGRST_DB_SCHEMAS: public
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_DB_EXTRA_SEARCH_PATH: public
+      PGRST_JWT_SECRET: *jwt-secret
+      PGRST_SERVER_HOST: 0.0.0.0
+      PGRST_SERVER_PORT: "3000"
+      PGRST_LOG_LEVEL: info
+    healthcheck:
+      test: ["CMD", "/bin/busybox", "wget", "-q", "-O", "/dev/null", "http://localhost:3000/"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 10s
+
+  # ---- Gateway: serves the Supabase API surface on host port 8000 ----
+  # The browser-based Supabase client calls this origin directly, so CORS for the
+  # preview origin is handled here.
+  gateway:
+    image: nginx:alpine
+    restart: on-failure
+    depends_on:
+      auth:
+        condition: service_healthy
+      rest:
+        condition: service_healthy
+    ports:
+      - "8000:80"
+    volumes:
+      - ./docker/supabase/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          wget -q -O /dev/null http://127.0.0.1/auth/v1/health
+          || { echo "auth upstream not answering"; exit 1; };
+          wget -q -O /dev/null http://127.0.0.1/rest/v1/
+          || { echo "rest upstream not answering"; exit 1; }
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 10s
+
+  # ---- Next.js app (development server, live reload from the bind mount) ----
+  web:
+    image: node:22
+    restart: on-failure
+    working_dir: /app
+    depends_on:
+      gateway:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - web-node-modules:/app/node_modules
+    environment:
+      BASE44_PREVIEW_MODE: ${BASE44_PREVIEW_MODE:-}
+      BASE44_PUBLIC_HOST_SUFFIX: ${BASE44_PUBLIC_HOST_SUFFIX:-}
+      NEXT_TELEMETRY_DISABLED: "1"
+      # Supabase API surface this app talks to: the gateway above, proxied through
+      # this app's own origin by the rewrite in next.config.ts, so the browser's
+      # Supabase calls are same-origin (no CORS, no third-party cookies).
+      NEXT_PUBLIC_SUPABASE_URL: https://3000-${BASE44_PUBLIC_HOST_SUFFIX}/api/supabase
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: *anon-key
+      SUPABASE_GATEWAY_URL: http://gateway
+      NEXT_PUBLIC_APP_URL: https://3000-${BASE44_PUBLIC_HOST_SUFFIX}
+    env_file:
+      # Placeholders first, platform-managed real secrets last (they win).
+      - path: ./base44-defaults.env
+        required: true
+      - path: /run/base44/app.env
+        required: false
+    command:
+      - sh
+      - -ec
+      - |
+        lock_hash="$$(md5sum package-lock.json | cut -d' ' -f1)"
+        if [ "$$(cat node_modules/.base44-lock 2>/dev/null || echo none)" != "$$lock_hash" ]; then
+          echo "==> installing dependencies from package-lock.json"
+          npm ci --no-audit --no-fund
+          echo "$$lock_hash" > node_modules/.base44-lock
+        fi
+        exec npx next dev -H 0.0.0.0 -p 3000
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - >-
+          fetch("http://127.0.0.1:3000/").then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 300s
+
+volumes:
+  db-data:
+  web-node-modules:

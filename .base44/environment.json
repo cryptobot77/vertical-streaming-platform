@@ -1,0 +1,52 @@
+{
+  "previewPort": 3000,
+  "healthPath": "/",
+  "startCommand": "docker compose -f docker-compose.base44.yml up -d",
+  "secrets": [
+    {
+      "name": "STRIPE_SECRET_KEY",
+      "description": "Stripe secret API key (Stripe dashboard -> Developers -> API keys). Needed for premium subscription checkout.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+      "description": "Stripe publishable API key (Stripe dashboard -> Developers -> API keys). Needed for premium subscription checkout in the browser.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "STRIPE_WEBHOOK_SECRET",
+      "description": "Stripe webhook signing secret for the /api/webhooks/stripe endpoint (Stripe dashboard -> Developers -> Webhooks).",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID",
+      "description": "Stripe price ID for the $9.99/month plan (scripts/setup-stripe-prices.ts prints it).",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID",
+      "description": "Stripe price ID for the $99.99/year plan (scripts/setup-stripe-prices.ts prints it).",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "MUX_TOKEN_ID",
+      "description": "Mux API access token ID (Mux dashboard -> Settings -> Access Tokens). Needed for video upload and playback.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "MUX_TOKEN_SECRET",
+      "description": "Mux API access token secret (Mux dashboard -> Settings -> Access Tokens). Needed for video upload and playback.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "MUX_WEBHOOK_SECRET",
+      "description": "Mux webhook signing secret for the /api/webhooks/mux endpoint (Mux dashboard -> Settings -> Webhooks).",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "NEXT_PUBLIC_MUX_ENV_KEY",
+      "description": "Mux environment key used by the Mux player (Mux dashboard -> Settings -> Environment Keys).",
+      "requiredAtBoot": false
+    }
+  ]
+}
