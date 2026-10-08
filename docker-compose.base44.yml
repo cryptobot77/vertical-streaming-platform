@@ -125,8 +125,9 @@ services:
       start_period: 10s
 
   # ---- Gateway: serves the Supabase API surface on host port 8000 ----
-  # The browser-based Supabase client calls this origin directly, so CORS for the
-  # preview origin is handled here.
+  # The browser does NOT call this origin directly — it calls the app's own origin
+  # and Next rewrites /api/supabase/* here (see next.config.ts), so no CORS is
+  # involved. Port 8000 stays published for direct API use (curl, webhooks, tests).
   gateway:
     image: nginx:alpine
     restart: on-failure

@@ -19,19 +19,31 @@ external is required to browse the app.
 | `auth`    | `supabase/gotrue` — email/password auth, issues the JWTs PostgREST trusts | `GOTRUE_MAILER_AUTOCONFIRM=true`, so sign-up works with no SMTP |
 | `migrate` | one-shot: applies `src/lib/supabase/schema.sql` then `docker/supabase/init/20-seed.sql` | skipped automatically once applied |
 | `rest`    | `postgrest` — the `/rest/v1` data API the app's Supabase client uses | built from `docker/postgrest/Dockerfile` |
-| `gateway` | `nginx` — routes `/auth/v1` → GoTrue and `/rest/v1` → PostgREST, and answers CORS | published on host port **8000** |
+| `gateway` | `nginx` — routes `/auth/v1` → GoTrue and `/rest/v1` → PostgREST | published on host port **8000** for direct API use; the browser never calls it directly |
 | `web`     | `node:22` running `next dev` on host port **3000** | dependencies install on start; `node_modules` lives in a named volume |
 
 ## Non-obvious things
 
-- **Two origins.** The browser-based Supabase client talks to the gateway directly,
-  so `NEXT_PUBLIC_SUPABASE_URL` must be a host the browser can reach:
-  `https://8000-${BASE44_PUBLIC_HOST_SUFFIX}`. Hence CORS lives in
-  `docker/supabase/nginx.conf`, not in the app. `NEXT_PUBLIC_APP_URL` is
-  `https://3000-${BASE44_PUBLIC_HOST_SUFFIX}`.
-- `next.config.ts` adds the preview host to `allowedDevOrigins` **only** when
-  `BASE44_PREVIEW_MODE` is exactly `"1"` (and `BASE44_PUBLIC_HOST_SUFFIX` is set);
-  otherwise the option stays empty and behaviour is unchanged.
+- **One origin.** The browser's Supabase client is pointed at the app itself:
+  `NEXT_PUBLIC_SUPABASE_URL=https://3000-${BASE44_PUBLIC_HOST_SUFFIX}/api/supabase`,
+  and `next.config.ts` rewrites `/api/supabase/*` to the gateway
+  (`SUPABASE_GATEWAY_URL=http://gateway`, internal compose DNS). Everything the
+  browser sends is therefore same-origin, so no CORS and no third-party cookies are
+  involved. Host port 8000 stays the gateway's direct address for curl, tests and
+  webhooks. `NEXT_PUBLIC_APP_URL` is `https://3000-${BASE44_PUBLIC_HOST_SUFFIX}`.
+- Changing `NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_GATEWAY_URL` in compose only takes
+  effect once the `web` container is recreated (`docker compose -f
+  docker-compose.base44.yml up -d`) — a running container keeps its old environment,
+  and a stale one silently reverts to the broken cross-origin setup (symptom: the
+  discover page logs `TypeError: Failed to fetch`).
+- `next.config.ts` adds the preview host to `allowedDevOrigins` **and** the
+  `/api/supabase/*` → gateway rewrite **only** when `BASE44_PREVIEW_MODE` is exactly
+  `"1"` (and `BASE44_PUBLIC_HOST_SUFFIX` is set); otherwise both stay empty and
+  behaviour is unchanged.
+- **Expected noise in the `db` logs, not failures:** one
+  `FATAL: role "postgres" does not exist` and an exited `pg_net` background worker,
+  logged once by the `supabase/postgres` image while it initialises a fresh volume.
+  They do not recur once the database is up.
 - `next build`/`next start` are not used here — the dev server is what keeps edits
   visible without a rebuild. `next dev` is bound to `0.0.0.0`.
 - `npm ci` needed the lockfile refreshed: `package-lock.json` was missing
@@ -57,6 +69,9 @@ docker compose -f docker-compose.base44.yml up -d --build
 docker compose -f docker-compose.base44.yml ps          # everything healthy / migrate exited 0
 curl -s -o /dev/null -w '%{http_code}\n' http://localhost:3000/
 curl -s -o /dev/null -w '%{http_code}\n' http://localhost:8000/rest/v1/
+# same API through the app's own origin (the path the browser actually uses)
+curl -s -H 'apikey: <anon key>' \
+  'http://localhost:3000/api/supabase/rest/v1/series?select=id,title&limit=2'
 curl -s -X POST http://localhost:8000/auth/v1/token?grant_type=password \
   -H 'apikey: <anon key>' -H 'Content-Type: application/json' \
   -d '{"email":"viewer@streamvault.dev","password":"password123"}'
