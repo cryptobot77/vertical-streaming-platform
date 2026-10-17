@@ -235,10 +235,10 @@ function UploadContent() {
             </svg>
             Back to Dashboard
           </button>
-          <h1 className="text-3xl font-bold text-white mb-2">
+          <h1 className="page-title mb-1.5">
             {step === 'series' ? 'Create New Series' : 'Add New Episode'}
           </h1>
-          <p className="text-gray-400">
+          <p className="page-sub">
             {step === 'series'
               ? 'Start a new series to organize your content'
               : 'Upload a new episode to your series'}

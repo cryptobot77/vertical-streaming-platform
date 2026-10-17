@@ -39,8 +39,6 @@ export default function Home() {
       <section className="relative pt-28 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Background glows */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/25 via-black to-pink-900/15 pointer-events-none" />
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-pink-600/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -151,15 +149,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Floating badges */}
-                <div className="absolute -left-10 top-16 glass rounded-xl px-3 py-2 shadow-lg animate-fadeIn stagger-3">
-                  <p className="text-white text-xs font-semibold">🔥 Trending Now</p>
-                  <p className="text-gray-400 text-[10px]">2.4K viewers</p>
-                </div>
-                <div className="absolute -right-8 bottom-20 glass rounded-xl px-3 py-2 shadow-lg animate-fadeIn stagger-4">
-                  <p className="text-white text-xs font-semibold">⭐ Premium</p>
-                  <p className="text-gray-400 text-[10px]">Exclusive content</p>
-                </div>
               </div>
             </div>
           </div>
@@ -182,8 +171,8 @@ export default function Home() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {/* Feature 1 */}
-            <div className="bg-white/4 border border-white/8 rounded-2xl p-7 card-hover group">
-              <div className="w-12 h-12 bg-gradient-to-br from-violet-600 to-purple-600 rounded-xl flex items-center justify-center mb-5 shadow-lg shadow-purple-500/25 group-hover:scale-110 transition-transform duration-300">
+            <div className="panel p-7 panel-hover group">
+              <div className="w-12 h-12 bg-gradient-to-br from-violet-600 to-purple-600 rounded-xl flex items-center justify-center mb-5 ">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
@@ -195,8 +184,8 @@ export default function Home() {
             </div>
 
             {/* Feature 2 */}
-            <div className="bg-white/4 border border-white/8 rounded-2xl p-7 card-hover group">
-              <div className="w-12 h-12 bg-gradient-to-br from-pink-600 to-rose-600 rounded-xl flex items-center justify-center mb-5 shadow-lg shadow-pink-500/25 group-hover:scale-110 transition-transform duration-300">
+            <div className="panel p-7 panel-hover group">
+              <div className="w-12 h-12 bg-gradient-to-br from-pink-600 to-rose-600 rounded-xl flex items-center justify-center mb-5 ">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
@@ -208,8 +197,8 @@ export default function Home() {
             </div>
 
             {/* Feature 3 */}
-            <div className="bg-white/4 border border-white/8 rounded-2xl p-7 card-hover group">
-              <div className="w-12 h-12 bg-gradient-to-br from-cyan-600 to-blue-600 rounded-xl flex items-center justify-center mb-5 shadow-lg shadow-blue-500/25 group-hover:scale-110 transition-transform duration-300">
+            <div className="panel p-7 panel-hover group">
+              <div className="w-12 h-12 bg-gradient-to-br from-cyan-600 to-blue-600 rounded-xl flex items-center justify-center mb-5 ">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
@@ -227,7 +216,6 @@ export default function Home() {
           CREATOR SECTION
       ━━━━━━━━━━━━━━━━━━━━━━ */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-950/10 to-black pointer-events-none" />
         <div className="relative max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div className="animate-fadeIn">
@@ -277,7 +265,7 @@ export default function Home() {
                   <span className="text-xs text-green-400 bg-green-400/10 px-2 py-1 rounded-full">↑ 0%</span>
                 </div>
                 <p className="text-4xl font-bold text-white mb-1">$0</p>
-                <p className="text-gray-500 text-sm">growing audiance takes time</p>
+                <p className="text-gray-500 text-sm">growing an audience takes time</p>
                 <div className="mt-4 h-1.5 bg-white/10 rounded-full">
                   <div className="h-full w-3/4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" />
                 </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import PageHeader from '@/components/PageHeader'
 
 interface Series {
   id: string
@@ -23,7 +24,7 @@ interface Series {
 
 function SeriesSkeleton() {
   return (
-    <div className="bg-white/4 border border-white/8 rounded-2xl overflow-hidden">
+    <div className="panel overflow-hidden">
       <div className="w-full aspect-[3/4] skeleton" />
       <div className="p-4 space-y-2">
         <div className="h-4 w-3/4 skeleton rounded" />
@@ -107,15 +108,13 @@ export default function DiscoverPage() {
     <div className="min-h-screen bg-black pt-24 pb-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-10 animate-fadeIn">
-          <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">Discover</h1>
-          <p className="text-gray-500">
-            {loading ? 'Loading content…' : `${series.length} series from top creators`}
-          </p>
-        </div>
+        <PageHeader
+          title="Discover"
+          subtitle={loading ? 'Loading content…' : `${series.length} series from top creators`}
+        />
 
         {/* Search bar */}
-        <div className="mb-6 animate-fadeIn stagger-1">
+        <div className="mb-3 animate-fadeIn stagger-1">
           <div className="relative">
             <svg
               className="w-5 h-5 text-gray-500 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
@@ -146,7 +145,7 @@ export default function DiscoverPage() {
         </div>
 
         {/* Category filters */}
-        <div className="flex gap-2 mb-8 no-scrollbar overflow-x-auto pb-1 animate-fadeIn stagger-2">
+        <div className="flex gap-2 mb-10 no-scrollbar overflow-x-auto pb-1 animate-fadeIn stagger-2">
           {categories.map(({ key, label }) => (
             <button
               key={key}
@@ -203,7 +202,7 @@ export default function DiscoverPage() {
                 className={`group block animate-fadeIn`}
                 style={{ animationDelay: `${Math.min(i * 0.04, 0.3)}s` }}
               >
-                <div className="bg-white/4 border border-white/8 rounded-2xl overflow-hidden card-hover hover:border-purple-500/30">
+                <div className="panel overflow-hidden panel-hover">
                   {/* Cover image */}
                   {s.cover_image_url ? (
                     <div className="relative overflow-hidden">
