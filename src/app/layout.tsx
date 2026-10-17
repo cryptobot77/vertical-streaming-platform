@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Outfit } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
+import PremiumStateSync from "@/components/PremiumStateSync";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
@@ -30,10 +31,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${plusJakartaSans.variable} ${outfit.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-black font-sans">
         <Navigation />
+        <PremiumStateSync />
         <main className="flex-1">{children}</main>
       </body>
     </html>

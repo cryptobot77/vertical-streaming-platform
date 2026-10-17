@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useUserStore } from '@/lib/store'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import PageHeader from '@/components/PageHeader'
@@ -99,6 +100,7 @@ export default function ProfilePage() {
         .eq('id', profile.id)
 
       setProfile({ ...profile, is_premium: false })
+      useUserStore.getState().setPremium(false)
       setSubscriptions(subscriptions.map(sub =>
         sub.id === subscriptionId ? { ...sub, status: 'canceled' } : sub
       ))
