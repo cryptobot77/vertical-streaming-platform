@@ -103,17 +103,60 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-b from-purple-600/30 to-pink-600/30 blur-2xl rounded-[40px] scale-110" />
 
                 {/* Phone frame */}
-                <div className="relative w-64 aspect-[9/19.5] bg-black rounded-[40px] border-2 border-white/15 shadow-2xl overflow-hidden">
+                <div className="relative w-64 aspect-[9/19.5] bg-gradient-to-b from-purple-950 via-[#150320] to-pink-950 rounded-[40px] border-2 border-white/15 shadow-2xl overflow-hidden">
                   {/* Top notch */}
                   <div className="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-4 bg-black rounded-full z-20 border border-white/10" />
 
-                  {/* Video fill */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-purple-900/40 via-black/60 to-pink-900/30" />
+                  {/* Video thumbnail scene — site palette */}
+                  <svg
+                    className="absolute inset-0 w-full h-full"
+                    viewBox="0 0 240 520"
+                    preserveAspectRatio="xMidYMid slice"
+                    aria-hidden="true"
+                  >
+                    <defs>
+                      <linearGradient id="phoneSceneSky" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" stopColor="#2e1065" />
+                        <stop offset="0.5" stopColor="#7e22ce" />
+                        <stop offset="0.78" stopColor="#db2777" />
+                        <stop offset="1" stopColor="#150320" />
+                      </linearGradient>
+                      <radialGradient id="phoneSceneGlow" cx="0.5" cy="0.26" r="0.5">
+                        <stop offset="0" stopColor="#f5d0fe" stopOpacity="0.95" />
+                        <stop offset="0.45" stopColor="#ec4899" stopOpacity="0.55" />
+                        <stop offset="1" stopColor="#ec4899" stopOpacity="0" />
+                      </radialGradient>
+                    </defs>
+                    <rect width="240" height="520" fill="url(#phoneSceneSky)" />
+                    {/* glowing sun */}
+                    <circle cx="120" cy="140" r="72" fill="url(#phoneSceneGlow)" />
+                    <circle cx="120" cy="140" r="22" fill="#fbcfe8" />
+                    {/* city skyline silhouette */}
+                    <path
+                      d="M0 348h26v-58h20v58h16v-86h24v86h18v-44h22v44h14v-72h26v72h18v-38h24v38h16v-64h22v64h14v190H0z"
+                      fill="#12021f"
+                    />
+                    {/* window lights */}
+                    <g fill="#f0abfc" opacity="0.7">
+                      <rect x="34" y="304" width="3" height="5" />
+                      <rect x="42" y="318" width="3" height="5" />
+                      <rect x="70" y="282" width="3" height="5" />
+                      <rect x="78" y="296" width="3" height="5" />
+                      <rect x="122" y="292" width="3" height="5" />
+                      <rect x="130" y="308" width="3" height="5" />
+                      <rect x="170" y="300" width="3" height="5" />
+                      <rect x="196" y="304" width="3" height="5" />
+                      <rect x="204" y="320" width="3" height="5" />
+                    </g>
+                  </svg>
 
-                  {/* Fake video content */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-                    <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-3">
-                      <svg className="w-6 h-6 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                  {/* Depth tint over the scene */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/60" />
+
+                  {/* Play button */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-lg shadow-purple-500/40 border border-white/20">
+                      <svg className="w-7 h-7 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M8 5v14l11-7z" />
                       </svg>
                     </div>
