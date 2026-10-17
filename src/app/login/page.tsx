@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { getEnabledOAuthProviders, type OAuthProvider } from '@/lib/oauth'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -30,6 +31,12 @@ export default function LoginPage() {
       setLoading(false)
     }
   }
+
+  const [oauthProviders, setOauthProviders] = useState<OAuthProvider[]>([])
+
+  useEffect(() => {
+    getEnabledOAuthProviders().then(setOauthProviders)
+  }, [])
 
   const handleOAuthLogin = async (provider: 'github' | 'google') => {
     const { error } = await supabase.auth.signInWithOAuth({
@@ -153,6 +160,8 @@ export default function LoginPage() {
             </button>
           </form>
 
+          {/* OAuth — only providers enabled on the auth server */}
+          {oauthProviders.length > 0 && (<>
           {/* Divider */}
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
@@ -165,6 +174,7 @@ export default function LoginPage() {
 
           {/* OAuth buttons */}
           <div className="grid grid-cols-2 gap-3">
+            {oauthProviders.includes('github') && (
             <button
               onClick={() => handleOAuthLogin('github')}
               className="flex items-center justify-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-gray-300 text-sm font-medium hover:bg-white/10 hover:text-white hover:border-white/20 transition-all duration-200"
@@ -174,6 +184,8 @@ export default function LoginPage() {
               </svg>
               GitHub
             </button>
+            )}
+            {oauthProviders.includes('google') && (
             <button
               onClick={() => handleOAuthLogin('google')}
               className="flex items-center justify-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-gray-300 text-sm font-medium hover:bg-white/10 hover:text-white hover:border-white/20 transition-all duration-200"
@@ -186,7 +198,9 @@ export default function LoginPage() {
               </svg>
               Google
             </button>
+            )}
           </div>
+          </>)}
 
           <p className="mt-8 text-center text-gray-500 text-sm">
             Don't have an account?{' '}

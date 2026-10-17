@@ -148,14 +148,8 @@ export default function SubscribePage() {
 
         {/* Header */}
         <div className="text-center mb-12 animate-fadeIn">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-500/10 border border-purple-500/25 rounded-full mb-5">
-            <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse" />
-            <span className="text-purple-300 text-xs font-medium">Premium Membership</span>
-          </div>
-          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4 tracking-tight">
-            Unlock all content
-          </h1>
-          <p className="text-gray-400 max-w-xl mx-auto leading-relaxed">
+          <h1 className="page-title">Unlock all content</h1>
+          <p className="page-sub max-w-xl mx-auto mt-2">
             Get unlimited access to exclusive series and episodes from top creators.
           </p>
         </div>

@@ -39,8 +39,6 @@ export default function Home() {
       <section className="relative pt-28 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Background glows */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/25 via-black to-pink-900/15 pointer-events-none" />
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-pink-600/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -105,17 +103,60 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-b from-purple-600/30 to-pink-600/30 blur-2xl rounded-[40px] scale-110" />
 
                 {/* Phone frame */}
-                <div className="relative w-64 aspect-[9/19.5] bg-black rounded-[40px] border-2 border-white/15 shadow-2xl overflow-hidden">
+                <div className="relative w-64 aspect-[9/19.5] bg-gradient-to-b from-purple-950 via-[#150320] to-pink-950 rounded-[40px] border-2 border-white/15 shadow-2xl overflow-hidden">
                   {/* Top notch */}
                   <div className="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-4 bg-black rounded-full z-20 border border-white/10" />
 
-                  {/* Video fill */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-purple-900/40 via-black/60 to-pink-900/30" />
+                  {/* Video thumbnail scene — site palette */}
+                  <svg
+                    className="absolute inset-0 w-full h-full"
+                    viewBox="0 0 240 520"
+                    preserveAspectRatio="xMidYMid slice"
+                    aria-hidden="true"
+                  >
+                    <defs>
+                      <linearGradient id="phoneSceneSky" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" stopColor="#2e1065" />
+                        <stop offset="0.5" stopColor="#7e22ce" />
+                        <stop offset="0.78" stopColor="#db2777" />
+                        <stop offset="1" stopColor="#150320" />
+                      </linearGradient>
+                      <radialGradient id="phoneSceneGlow" cx="0.5" cy="0.26" r="0.5">
+                        <stop offset="0" stopColor="#f5d0fe" stopOpacity="0.95" />
+                        <stop offset="0.45" stopColor="#ec4899" stopOpacity="0.55" />
+                        <stop offset="1" stopColor="#ec4899" stopOpacity="0" />
+                      </radialGradient>
+                    </defs>
+                    <rect width="240" height="520" fill="url(#phoneSceneSky)" />
+                    {/* glowing sun */}
+                    <circle cx="120" cy="140" r="72" fill="url(#phoneSceneGlow)" />
+                    <circle cx="120" cy="140" r="22" fill="#fbcfe8" />
+                    {/* city skyline silhouette */}
+                    <path
+                      d="M0 348h26v-58h20v58h16v-86h24v86h18v-44h22v44h14v-72h26v72h18v-38h24v38h16v-64h22v64h14v190H0z"
+                      fill="#12021f"
+                    />
+                    {/* window lights */}
+                    <g fill="#f0abfc" opacity="0.7">
+                      <rect x="34" y="304" width="3" height="5" />
+                      <rect x="42" y="318" width="3" height="5" />
+                      <rect x="70" y="282" width="3" height="5" />
+                      <rect x="78" y="296" width="3" height="5" />
+                      <rect x="122" y="292" width="3" height="5" />
+                      <rect x="130" y="308" width="3" height="5" />
+                      <rect x="170" y="300" width="3" height="5" />
+                      <rect x="196" y="304" width="3" height="5" />
+                      <rect x="204" y="320" width="3" height="5" />
+                    </g>
+                  </svg>
 
-                  {/* Fake video content */}
-                  <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-                    <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-3">
-                      <svg className="w-6 h-6 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                  {/* Depth tint over the scene */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/60" />
+
+                  {/* Play button */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center shadow-lg shadow-purple-500/40 border border-white/20">
+                      <svg className="w-7 h-7 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M8 5v14l11-7z" />
                       </svg>
                     </div>
@@ -151,15 +192,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Floating badges */}
-                <div className="absolute -left-10 top-16 glass rounded-xl px-3 py-2 shadow-lg animate-fadeIn stagger-3">
-                  <p className="text-white text-xs font-semibold">🔥 Trending Now</p>
-                  <p className="text-gray-400 text-[10px]">2.4K viewers</p>
-                </div>
-                <div className="absolute -right-8 bottom-20 glass rounded-xl px-3 py-2 shadow-lg animate-fadeIn stagger-4">
-                  <p className="text-white text-xs font-semibold">⭐ Premium</p>
-                  <p className="text-gray-400 text-[10px]">Exclusive content</p>
-                </div>
               </div>
             </div>
           </div>
@@ -182,8 +214,8 @@ export default function Home() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {/* Feature 1 */}
-            <div className="bg-white/4 border border-white/8 rounded-2xl p-7 card-hover group">
-              <div className="w-12 h-12 bg-gradient-to-br from-violet-600 to-purple-600 rounded-xl flex items-center justify-center mb-5 shadow-lg shadow-purple-500/25 group-hover:scale-110 transition-transform duration-300">
+            <div className="panel p-7 panel-hover group">
+              <div className="w-12 h-12 bg-gradient-to-br from-violet-600 to-purple-600 rounded-xl flex items-center justify-center mb-5 ">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
@@ -195,8 +227,8 @@ export default function Home() {
             </div>
 
             {/* Feature 2 */}
-            <div className="bg-white/4 border border-white/8 rounded-2xl p-7 card-hover group">
-              <div className="w-12 h-12 bg-gradient-to-br from-pink-600 to-rose-600 rounded-xl flex items-center justify-center mb-5 shadow-lg shadow-pink-500/25 group-hover:scale-110 transition-transform duration-300">
+            <div className="panel p-7 panel-hover group">
+              <div className="w-12 h-12 bg-gradient-to-br from-pink-600 to-rose-600 rounded-xl flex items-center justify-center mb-5 ">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
@@ -208,8 +240,8 @@ export default function Home() {
             </div>
 
             {/* Feature 3 */}
-            <div className="bg-white/4 border border-white/8 rounded-2xl p-7 card-hover group">
-              <div className="w-12 h-12 bg-gradient-to-br from-cyan-600 to-blue-600 rounded-xl flex items-center justify-center mb-5 shadow-lg shadow-blue-500/25 group-hover:scale-110 transition-transform duration-300">
+            <div className="panel p-7 panel-hover group">
+              <div className="w-12 h-12 bg-gradient-to-br from-cyan-600 to-blue-600 rounded-xl flex items-center justify-center mb-5 ">
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
@@ -227,7 +259,6 @@ export default function Home() {
           CREATOR SECTION
       ━━━━━━━━━━━━━━━━━━━━━━ */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-950/10 to-black pointer-events-none" />
         <div className="relative max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div className="animate-fadeIn">
@@ -277,7 +308,7 @@ export default function Home() {
                   <span className="text-xs text-green-400 bg-green-400/10 px-2 py-1 rounded-full">↑ 0%</span>
                 </div>
                 <p className="text-4xl font-bold text-white mb-1">$0</p>
-                <p className="text-gray-500 text-sm">growing audiance takes time</p>
+                <p className="text-gray-500 text-sm">growing an audience takes time</p>
                 <div className="mt-4 h-1.5 bg-white/10 rounded-full">
                   <div className="h-full w-3/4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" />
                 </div>

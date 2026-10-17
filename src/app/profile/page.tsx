@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useUserStore } from '@/lib/store'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import PageHeader from '@/components/PageHeader'
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<any>(null)
@@ -98,6 +100,7 @@ export default function ProfilePage() {
         .eq('id', profile.id)
 
       setProfile({ ...profile, is_premium: false })
+      useUserStore.getState().setPremium(false)
       setSubscriptions(subscriptions.map(sub =>
         sub.id === subscriptionId ? { ...sub, status: 'canceled' } : sub
       ))
@@ -130,10 +133,10 @@ export default function ProfilePage() {
           </div>
         )}
 
-        <h1 className="text-3xl font-bold text-white mb-8 tracking-tight animate-fadeIn">Profile</h1>
+        <PageHeader title="Profile" />
 
         {/* Profile Card */}
-        <div className="bg-white/4 border border-white/8 rounded-2xl overflow-hidden mb-5 animate-fadeIn">
+        <div className="panel overflow-hidden mb-5 animate-fadeIn">
           {/* Card header with avatar */}
           <div className="p-6 border-b border-white/8">
             <div className="flex items-start justify-between gap-4">
@@ -270,7 +273,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Subscription Card */}
-        <div className="bg-white/4 border border-white/8 rounded-2xl p-6 animate-fadeIn stagger-2">
+        <div className="panel p-6 animate-fadeIn stagger-2">
           <div className="flex items-center justify-between mb-5">
             <h3 className="text-lg font-bold text-white">Subscription</h3>
             {!profile?.is_premium && (

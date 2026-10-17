@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/*
+ * Everything below lives in the base layer. Unlayered author CSS would win
+ * against Tailwind's @layer utilities no matter the specificity, silently
+ * killing padding/margin/typography utilities app-wide (the "cramped,
+ * cluttered" look). Inside @layer base, utilities override custom styles,
+ * which is what the pages' markup assumes.
+ */
+@layer base {
+
 :root {
   --background: #000000;
   --foreground: #ffffff;
@@ -445,3 +454,56 @@ a {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* =====================
+   PAGE SYSTEM
+   Shared layout primitives so every page follows the same rhythm:
+   one title size, one subtitle style, one card surface.
+   ===================== */
+
+/* Page title — smaller and quieter than marketing headlines; content is the hero */
+.page-title {
+  font-size: clamp(1.6rem, 1.3rem + 1.4vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: #fff;
+}
+
+.page-sub {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+/* One card surface for the whole app — replaces ad-hoc bg/border combos */
+.panel {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 1.25rem;
+}
+
+.panel-hover {
+  transition: transform var(--transition-base), border-color var(--transition-base);
+}
+
+.panel-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(168, 85, 247, 0.35);
+}
+
+/* Quiet stat tile used by the creator dashboard and profile */
+.stat-value {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+
+.stat-label {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.75rem;
+}
+
+} /* end @layer base */
+

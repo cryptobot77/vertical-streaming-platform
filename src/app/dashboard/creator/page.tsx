@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import PageHeader from '@/components/PageHeader'
 
 interface Series {
   id: string
@@ -102,21 +103,21 @@ export default function CreatorDashboard() {
       <div className="max-w-7xl mx-auto">
 
         {/* Header */}
-        <div className="flex items-start justify-between mb-8 animate-fadeIn">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Creator Studio</h1>
-            <p className="text-gray-500 text-sm">Manage your series and episodes</p>
-          </div>
-          <button
-            onClick={() => router.push('/dashboard/creator/upload')}
-            className="btn-primary py-2.5 px-5 text-sm"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            New Series
-          </button>
-        </div>
+        <PageHeader
+          title="Creator Studio"
+          subtitle="Manage your series and episodes"
+          action={
+            <button
+              onClick={() => router.push('/dashboard/creator/upload')}
+              className="btn-primary py-2.5 px-5 text-sm"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              New Series
+            </button>
+          }
+        />
 
         {/* Stats bar */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-10 animate-fadeIn stagger-1">
@@ -147,13 +148,13 @@ export default function CreatorDashboard() {
               </svg>
             )}] : []),
           ].map(({ label, value, icon }) => (
-            <div key={label} className="bg-white/4 border border-white/8 rounded-2xl p-4 flex items-center gap-3">
+            <div key={label} className="panel p-4 flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0">
                 {icon}
               </div>
               <div>
-                <p className="text-2xl font-bold text-white">{value}</p>
-                <p className="text-gray-500 text-xs">{label}</p>
+                <p className="stat-value">{value}</p>
+                <p className="stat-label">{label}</p>
               </div>
             </div>
           ))}
@@ -181,7 +182,7 @@ export default function CreatorDashboard() {
             {series.map((s) => (
               <div
                 key={s.id}
-                className="bg-white/4 border border-white/8 rounded-2xl overflow-hidden card-hover hover:border-purple-500/30 group"
+                className="panel overflow-hidden card-hover hover:border-purple-500/30 group"
               >
                 {/* Thumbnail — vertical aspect ratio for vertical content */}
                 {s.cover_image_url ? (
